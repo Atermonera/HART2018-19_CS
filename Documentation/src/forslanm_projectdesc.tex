@@ -1,0 +1,36 @@
+\documentclass[10pt,draftclsnofoot,onecolumn]{article}
+\usepackage[left=0.75in, right=0.75in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+
+\title{Problem Statement}
+\author{Matthew Forsland\\\\HART CS Capstone\\\\CS 461 Capstone Engineering Project\\Fall Term}
+\date{10 October 2018}
+
+\begin{document}
+\maketitle
+
+\section{ABSTRACT}
+We establish the overall goal for the HART CS Capstone project of receiving, interpreting, and visualizing live telemetry data from both stages of a two-stage solid rocket motor propelled rocket. In order to achieve this, we propose to implementa three dimensional visualization of the trajectories of both stages, with updates being processed as they are received from the rocket. We also propose to process the telemetry data into graphs characterizing motor performance and flight characteristics. In order to measure this, we will develop and submit subsystems controlling the reception and interpretation of telemetry data, the processing of that data into more abstract variables, and the visualization of all interpreted and processed telemetry data.
+
+\pagebreak
+
+\section{Problem Description}
+
+Amateur high-powered rockets flying in excess of 5000 feet are no longer visible to the naked human eye. Depending on the weather, time of day, and location of the launch pad relative to mission control, the rocket may also be flying near the sun or through clouds for viewers from the ground, making it even harder to track. In order to track such rockets, they must broadcast telemetry containing some measure of altitude and position, which must be received and interpreted by a ground station.
+
+This project requires the computer science team to receive live telemetry broadcast from a two-stage rocket in flight, process that data to determine rocket orientation and position, and track it for the duration of the flight. We will also be creating a visual representation of the trajectories of both stages to allow an intuitive understanding of the flight path and approximate location of touchdown. We will work with an electronics and computer engineering team to design the avionics hardware and write the avionics hardware of both stages, establish communication protocols, and with a mechanical engineering team to design the physical groundstation to ensure that it will function in high desert conditions during the summer, when we expect to be launching the rocket at the 2019 Spaceport America Cup. We will also be coordinating with a number of other mechanical engineering teams who are tasked with design and manufacture of various rocket components.
+
+\section{Proposal}
+
+We will analyze barometric pressure and altitude, gyroscope-read orientation, and GPS position when available to determine the position of both stages relative to the ground station, rocket motor performance, and flight characteristics. Live telemetry will be input into a Kalman filter to account for inaccuracy in instrument data and sudden spikes, such as will occur in barometric altitude readings when a shockwave forms around the rocket when it exceeds Mach 1 in velocity.
+
+We will create a three dimensional model of the terrain over which the rocket is expected to fly, and plot the flight path of both stages of the rocket for the duration of the flight using all data collected since the avionics systems started transmitting data. The three-dimensional model will be accompanied by line graphs plotting the rocket's altitude, vertical and horizontal velocity, acceleration, barometric pressure, thrust achieved from the rocket motors, and a top-down plot of the rocket's position as reported by the GPS.
+
+\section{Metrics}
+The project can be measured against the development of distinct functions and the integration of those functions. Telemetry reception will be largely delayed until the electronics and computer engineering team establishes the transmission hardware they will be using and the protocols by which the avionics units will transmit data, but we will be able to develop a substitute protocol for the initial development of functions receiving and interpretting telemetry data until the final protocol becomes available. We have access to telemetry from previous years' rocket flights that can be used to test the development of visualization software and interpretation of telemetry data into more complex variables, such as rocket thrust.
+
+\end{document}
+
+
