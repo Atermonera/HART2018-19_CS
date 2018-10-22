@@ -1,0 +1,141 @@
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{		HART CS Capstone}
+\def \CapstoneTeamNumber{		11}
+\def \GroupMemberOne{			Rick Menzel}
+\def \GroupMemberTwo{			Matt Forsland}
+\def \CapstoneProjectName{		High Altitude Rocketry Project}
+\def \CapstoneSponsorCompany{	OSU American Institute of Aeronautics and Astronautics (AIAA)}
+\def \CapstoneSponsorPerson{		Dr. Nancy Squires}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{		Problem Statement
+				%Requirements Document
+				%Technology Review
+				%Design Document
+				%Progress Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+%\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+    	\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \CapstoneTeamName\par 
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                %\NameSigPair{\GroupMemberTwo}\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract
+		2018-2019 Capstone Team 11 is tasked with assisting the OSU chapter of the AIAA with the goal of exceeding the current collegiate high-altitude record for a student-built rocket (144,000 ft). 
+		To that end we identify three main problems: the processing of in-flight data from previous years, the capture of in-flight telemetry from our rockets and tests, and the meaningful visualization of the data we capture, with the capture of telemetry being the most mission critical.
+		The solution to these problems will be tested during a final competition launch in June 2019, by which point it is critical to have working avionics and telemetry systems capable of capturing, transmitting, and displaying complete and accurate in-flight data.
+        	%This document is written using one sentence per line.
+        	%This allows you to have sensible diffs when you use \LaTeX with version control, as well as giving a quick visual test to see if sentences are too short/long.
+        	%If you have questions, ``The Not So Short Guide to LaTeX'' is a great resource (\url{https://tobi.oetiker.ch/lshort/lshort.pdf})
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+% 8. now you write!
+\section{Problem Definition and Description}
+The OSU chapter of the American Institute of Aeronautics and Astronautics (AIAA) is seeking to break the current collegiate high-altitude record for a student-built rocket. 
+The High-Altitude Rocket Team (HART) will design and assemble a 2-stage solid rocket motor, to be launched June 2019 at Spaceport America. 
+The goal for this year's team is to exceed 144,000 feet, the current altitude record (currently held by USC). 
+This effort will build on projects from previous years (2016-2017, 2017-2018) and is part of a long-term effort to win the University Space Race, a challenge to reach an altitude of 100km. 
+This is a multidisciplinary project, uniting capstone teams from the Mechanical Engineering (ME), Electrical and Computer Engineering (ECE) and Computer Science (CS) programs. 
+The ME team will design the motor, airframe, recovery systems and avionics bays for the rocket while the ECE team will design the physical components of the telemetry, avionics and in-flight data acquisition. 
+As the CS team, our responsibilities fall under three main categories: preliminary data processing, flight telemetry and visualization of in-flight data.
+
+\subsection{Data Processing}
+Given that this year's HART effort builds on work done in the two previous school years, the processing of data will be a significant first step. 
+There have been large amounts of unprocessed telemetry data collected from previous launches which offers a chance to analyze and subsequently improve upon earlier performance. 
+In particular, there is a significant amount of data on the in-flight thrust characteristics of these earlier rockets. 
+The processing and subsequent analysis of this data is central to HART's ability to improve upon OSU's existing launch capability not only in terms of altitude but also in reliability (which was an issue during last year's launch).
+
+Furthermore, the current HART team anticipates making several test launches prior to the ultimate competition launch at Spaceport America, including at least one full scale, full altitude test. 
+The ability to process and analyze data from these tests will allow us to work toward the final airframe and thruster design as well as to detect and address potential issues along the way. 
+This ties into the second category: telemetry.
+
+\subsection{Telemetry}
+Capturing accurate and reliable in-flight telemetry data is perhaps the most important problem in this project for several reasons. 
+Firstly, given that this effort is fundamentally a competition, both in terms of this year's attempt to best the current altitude record and the ultimate goal of winning the University Space Race, the ability to accurately monitor and record the altitude reached by our rocket is absolutely mission critical. 
+Secondly, after speaking to Dr. Squires, HART's faculty sponsor, it appears that last year's team was less than successful in capturing telemetry, a shortcoming which threatened the progress made by that team (as incomplete/inaccurate data is of questionable use). 
+As the ultimate goal of this project is to achieve a minimum altitude of 144,000 feet and the rocket is, of course, unmanned, capturing telemetry is the only way we will be able to determine success or failure.
+
+\subsection{Visualization of In-Flight Data}
+Finally, while perhaps less mission critical than telemetry capture, the ability to visualize certain in-flight characteristics of our rocket has several important implications for our project.
+As the final rocket will be moving at high speeds well beyond the range of unaided human vision, this will be the only way the team on the ground will be able to monitor the rocket during flight. 
+The need for this becomes apparent when one understands that a successful flight comprises several critical stages including second stage ignition, expenditure of fuel stages, stage separation and deployment of arresting devices (parachutes). 
+Failures at any of these stages have the potential to demand action on the part of the ground team up to and including aborts. 
+Additionally, the ability to visualize the flight path of the rocket both complements the gathering of telemetry and serves to facilitate the timely recovery of components post-flight. 
+
+\section{Proposed Solution}
+After speaking with Dr. Squires and the ME/ECE capstone teams, our solution will likely come in the form of two distinct products. 
+The first will be a series of scripts which will allow for the processing of both past and future telemetry data in a way which allows us to derive lessons learned from this data. 
+The second product will be software to actually capture, record and visualize in-flight data from our rockets and test platforms. 
+This latter part is both the more important and more complicated challenge for our sub-team.
+Currently the plan for gathering this telemetry data is for the ECE team to design and produce a printed circuit board (PCB) to be integrated into the rocket body. 
+This will connect to various pieces of sensing equipment, most notably a global positioning system (GPS) transceiver. 
+The CS sub-team will then write software to allow these avionics systems to communicate with a ground station, interpret the data and finally display it in a meaningful way. 
+At a minimum this will include a graphical display of the rocket's position and a readout of current altitude. 
+As the rocket may only achieve peak altitude briefly, it will be important to store and make accessible the highest altitude obtained over the flight time. 
+Additionally, Dr. Squires has expressed some interest in a system capable of providing audible ques at certain altitude intervals. 
+The position visualization system will likely take the form of a representation of both the ground and target planes onto which will be displayed a representation of the rocket and some representation of its flight path (possibly both a projection and a history).
+
+\section{Performance Metrics}
+The above proposed solution naturally implies several key performance metrics.
+The first (that is, earliest) will be the successful processing of existing data into a meaningful format that is of use to the ME team, especially with thrust data.
+Second will be the successful component level and integrated testing of the avionics software systems for telemetry and subsequent visualization. 
+These tests will likely occur in several stages as the airframe matures, ultimately culminating in a fully functional system to be used in a full scale, full altitude test flight in April or May of 2019.
+By this point in the project, the software should be fully functional (i.e. a working prototype) at a minimum, if not nearly feature-complete.
+This ability to test our systems prior to the final launch in June should allow at least a month for any necessary debugging or improvement needed.
+Finally, and most importantly, will be the successful capture of complete and accurate telemetry during the final June launch at Spaceport America, as well as the successful visualization of this data.
+In this sense, the word complete is meant to denote sufficient data capture so as to provide complete certainty of the actual in-flight characteristics of the rocket (as some degree of packet loss is to be expected).
+The subsequent visualization of this data should be similarly accurate and further capable of operating properly despite an acceptable degree of packet or signal loss.
+
+\end{document}
