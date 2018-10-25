@@ -16,8 +16,8 @@
 \def \CapstoneSponsorPerson{	Dr. Nancy Squires}
 
 % 2. Uncomment the appropriate line below so that the document type works
-\def \DocType{		Requirements Document
-				%Requirements Document
+\def \DocType{			%Problem Statement
+				Requirements Document
 				%Technology Review
 				%Design Document
 				%Progress Report
@@ -86,13 +86,14 @@
 		[Description of the section]
 
 		\subsection{Purpose}
-			The purpose of this document is to provide a detailed description of the requirements for the HART CS groundstation software. 
-			It will describe the purpose and scope of the project and the specific requirements of the completed system. 
-			It will also detail the interface and interactions with the HART ECE avionics system.
+			The purpose of this document is to provide a detailed description of the requirements for the 2018-2019 HART CS sub-team software engineering project. 
+			It will describe the purpose and scope of the project and specific requirements of the completed system. 
+			It will also detail the interface and the system's interactions with the HART ECE avionics system.
 
 		\subsection{Scope}
 			The HART CS groundstation is a system which receives telemetry data transmitted wirelessly from two remote systems located on separate stages of 2-stage rocket. 
-			It will interpret the raw telemetry data to calculate derived values, and provide a web application which visualizes all data in 2-dimensional graphs and provides a 3-dimensional visualization of the rockets' trajectories.
+			The job of the groundstation is to interpret raw telemetry data, calculate derived values, and provide an application which visualizes this data.
+			These displays will take the form of both 2-dimensional graphs (for parameters including altitude, vertical and horizontal velocity, acceleration, barometric pressure and thrust) and also a 3-dimensional visualization of the rocket stage trajectories.
 
 		\subsection{Glossary}
 			\begin{itemize}
@@ -116,11 +117,20 @@
 
 		\subsection{Product Perspective}
 			This software will consist of a server backend which receives telemetry data broadcast by avionics systems located on both stages of a 2-stage rocket, and interprets that data into additional derived values. 
-			The server backend will communicate with a web application which provides visualization for raw and interpreted data in 2-dimensional graphs, and generates a 3-dimensional model for the trajectory of both stages of the rocket.
+			The server backend will communicate with a frontend application which provides visualization for raw and interpreted data in 2-dimensional graphs, and generates a 3-dimensional model for the trajectory of both stages of the rocket.
 
 		\subsection{Product Functions}
-			[Basic usage of the software]
-
+			The final deliverable can essentially be broken down into two main components, hereafter referred to as the backend and the frontend.
+			The first component, the backend, will be responsible for the receiving and subsequent processing of raw telemetry.
+			This implies two primary functions for the backend: first, the processing of telemetry into a form usable by the frontend, and second, the storing of telemetry for later revisiting.
+			The second component, the frontend, will in turn be responsible for displaying the processed telemetry in a meaningful and useful manner.
+			This portion of the product can be futher broken two into two sub-components.
+			The first sub-component shall display the in-flight characteristics of the airframe including altitude, vertical and horizontal velocity, acceleration, barometric pressure and thrust in a series of continuously-updated 2-dimensional graphs or numerical readouts. 
+			Notably, this sub-component with feature little if any user interaction. 
+			The second sub-component then will be responsible for the 3-dimensional visualization of the two rocket stages and their respective trajectories. 
+			Given that a 3D flight path can proceed in any number of lateral directions, it will likely become necessary to adjust the eye-position and/or viewing angle to maintain the utility of this sub-component.
+			Functionally, this means that a degree of user-interaction is called for.
+			
 		\subsection{User Characteristics}
 			The types of users who will use this software fall into two main categories. 
 			The first type of user includes personnel operating the rocket, who require the groundstation to accurately receive telemetry broadcasted by the rocket in real time, and provide an accurate location of the rocket once landed to facilitate quick recovery of the rocket.
@@ -134,10 +144,15 @@
 			The graphical user interface must be reliable and dependable.
 
 		\subsection{Assumptions and Dependencies}
-			[Assumptions]
+			For this sytem to operate there are two key assumptions to consider.
+			First and foremost is the ability to actually launch the final rocket. 
+			Our project is part of a multi-disciplinary effort and we are reliant upon several ME teams for the design and constrution of the actual airframe.
+			Given the nature of rocket flight, there are a number of factors beyond our sub-team's control which have the potential to interfere with a full-scale launch, most notably the weather, poor weather on the day of launch having the potential to scrub the entire mission.
+			A further caveat to this is that a full-scale launch to our target altitude cannot be conducted locally.
+			This restriction necessitates that HART travels to Spaceport America in New Mexicio for full-scale, full-altitude launches, a necessity which is of subject to budgetary considerations, among others.
 
-			\noindent The software is dependent upon the HART ECE avionics system being operational and able to broadcast telemetry for any tests during which the groundstation software is used.
-			The software is dependent upon the groundstation being able to reliably receive the telemetry broadcast by the rocket without interference.
+			The second assumption is that the HART ECE sub-team's avionics system will be fully operational and able to broadcast telemetry for any flights during which the groundstation software is used.
+			Even assuming that the avionics system is completed, a component failure while in-flight or high levels of electromagnetic interference have the potential to disrupt the groundstation's ablity to reliably receive telemetry.
 
 		\subsection{Apportioning of Requirements}
 			[Input desired]
@@ -156,6 +171,43 @@
 
 			\noindent
 			\textbf{ID: FR1}\\
+			TITLE: Acceleration Display\\
+			DESC: The software should display the current acceleration of the rocket.\\
+			RAT: The ability to display the current acceleration being experienced by the rocket will allow the ground team to monitor for emergent conditions which may threaten the safety of the airframe or ground personnel.
+				Additionally, acceleration information will be useful for monitoring stage progression to include recovery deployment success.\\
+			DEPEND: \\
+			
+			\noindent
+			\textbf{ID: FR2}\\
+			TITLE: Altitude Display\\
+			DESC: The software should display the altitude of the rocket.\\
+			RAT: Given that the goal of HART is to launch a rocket to a minimum altitude, the display of current and peak altitude will allow the team to monitor progress and determine success on the day.\\
+			DEPEND: \\ 
+			
+			\noindent
+			\textbf{ID: FR3}\\
+			TITLE: Barometric Pressure Display\\
+			DESC: The software should display the current barometric pressure experienced by the rocket.\\
+			RAT: The ability to display the current barometric pressure being experienced by the rocket will allow the ground team to monitor for emergent conditions which may threaten the safety of the airframe or ground personnel.\\
+			DEPEND: \\
+			
+			\noindent
+			\textbf{ID: FR4}\\
+			TITLE: Thrust Interpretation\\
+			DESC: The software should interpret the acceleration telementry into the thrust provided by the rocket motors.\\
+			RAT: Providing the thrust curve produced by a rocket motor allows users to analyze the rocket motor's performance.\\
+			DEPEND: \\
+			
+			\noindent
+			\textbf{ID: FR5}\\
+			TITLE: Thrust Display\\
+			DESC: The software should display the current thrust level of the rocket.\\
+			RAT: The ability to display the current acceleration being experienced by the rocket will allow the ground team to monitor for emergent conditions which may threaten the safety of the airframe or ground personnel.
+				Additionally, thrust information will be critical for monitoring stage progression.\\
+			DEPEND: FR4\\
+			
+			\noindent
+			\textbf{ID: FR6}\\
 			TITLE: Velocity Interpretation\\
 			DESC: The software should interpret the acceleration and altitude telemetry into velocity data.\\
 			RAT: The telemetry data will provide only information pertaining to the rocket's orientation, acceleration, altitude, and GPS position.
@@ -163,19 +215,26 @@
 			DEPEND: \\
 			
 			\noindent
-			\textbf{ID: FR2}\\
-			TITLE: Thrust Interpretation\\
-			DESC: The software should interpret the acceleration telementry into the thrust provided by the rocket motors.\\
-			RAT: Providing the thrust curve produced by a rocket motor allows users to analyze the rocket motor's performance.\\
-			DEPEND: \\
+			\textbf{ID: FR7}\\
+			TITLE: Velocity Display\\
+			DESC: The software should display the current vertical and horizontal acceleration of the rocket.\\
+			RAT: The ability to display the current vertical and horizontal acceleration of the rocket will allow the ground team to monitor for emergent conditions which may threaten the safety of the airframe or ground personnel.\\
+			DEPEND: FR6\\
 			
-			[Here's a template for this, go ahead and write whatever requirements you can think of]
 			\noindent
-			\textbf{ID: FR[N]}\\
-			TITLE: \\
-			DESC: \\
-			RAT: \\
-			DEPEND: \\
+			\textbf{ID: FR8}\\
+			TITLE: Flight Path and Location Display\\
+			DESC: The software should display the flight path and current location of the rocket.\\
+			RAT: The ability to display the flight path and location of the rocket will allow the ground team to monitor for emergent conditions which may threaten the safety of the airframe or ground personnel.
+				Additionally, stage location information will be critical to airframe recovery efforts.\\
+			DEPEND: FR1, FR6\\
+			%
+			%\noindent
+			%\textbf{ID: FR[N]}\\
+			%TITLE: \\
+			%DESC: \\
+			%RAT: \\
+			%DEPEND: \\
 		
 		\subsection{Performance Requirements}
 			This section provides a detailed specification of user interaction with the software and performance metrics for the software.
@@ -189,18 +248,25 @@
 			DEPEND: \\
 			
 			\noindent
-			\textbf{ID: QR[N]}\\
+			\textbf{ID: QR2}\\
 			TITLE: Realtime Visualization\\
-			DESC: The web application should update with telemetry data in realtime, as it is received by the groundstation.\\
+			DESC: The visualization application should update with telemetry data in realtime, as it is received by the groundstation.\\
 			RAT: Monitoring the rocket's status while it is in flight but not visually tracked is important in determining if the rocket is falling at terminal velocity, which poses a significant safety hazard to personnel on the ground. \\
 			DEPEND: QR1\\
-
-			[Here's a template for this, go ahead and write whatever requirements you can think of]
+			
 			\noindent
 			\textbf{ID: QR[N]}\\
-			TITLE: \\
-			DESC: \\
-			RAT: \\
+			TITLE: Interactive Visualization\\
+			DESC: The 3-dimensional trajectory and location visualization should be interactive to allow the user to adjust the eye-position and/or viewing angle.\\
+			RAT: Given that a 3D flight path can proceed in any number of lateral directions, it will likely become necessary to adjust the eye-position and/or viewing angle to prevent display occlusion and aid in meaningful location association.\\
 			DEPEND: \\
+
+			%[Here's a template for this, go ahead and write whatever requirements you can think of]
+			%\noindent
+			%\textbf{ID: QR[N]}\\
+			%TITLE: \\
+			%DESC: \\
+			%RAT: \\
+			%DEPEND: \\
 
 \end{document}
