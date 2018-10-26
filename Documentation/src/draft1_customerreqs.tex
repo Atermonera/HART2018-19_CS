@@ -12,8 +12,8 @@
 \def \GroupMemberOne{			Rick Menzel}
 \def \GroupMemberTwo{			Matthew Forsland}
 \def \CapstoneProjectName{		High Altitude Rocketry Project}
-\def \CapstoneSponsorCompany{	OSU American Institute of Aeronautics and Astronautics (AIAA)}
-\def \CapstoneSponsorPerson{	Dr. Nancy Squires}
+\def \CapstoneSponsorCompany{		OSU American Institute of Aeronautics and Astronautics (AIAA)}
+\def \CapstoneSponsorPerson{		Dr. Nancy Squires}
 
 % 2. Uncomment the appropriate line below so that the document type works
 \def \DocType{			%Problem Statement
@@ -68,6 +68,7 @@
 				%This document is written using one sentence per line.
 				%This allows you to have sensible diffs when you use \LaTeX with version control, as well as giving a quick visual test to see if sentences are too short/long.
 				%If you have questions, ``The Not So Short Guide to LaTeX'' is a great resource (\url{https://tobi.oetiker.ch/lshort/lshort.pdf})
+				[need to fill this in at some point]
 			\end{abstract}     
 		\end{singlespace}
 	\end{titlepage}
@@ -83,16 +84,14 @@
 
 	% 8. now you write!
 	\section{Introduction}
-		[Description of the section]
-
 		\subsection{Purpose}
-			The purpose of this document is to provide a detailed description of the requirements for the 2018-2019 HART CS sub-team software engineering project. 
+			The purpose of this document is to provide a detailed description of the requirements for the 2018-2019 HART CS sub-team software engineering project, and will serve simulaneously as a roadmap for project work and as a rubric for eventual evaluation. 
 			It will describe the purpose and scope of the project and specific requirements of the completed system. 
 			It will also detail the interface and the system's interactions with the HART ECE avionics system.
 
 		\subsection{Scope}
-			The HART CS groundstation is a system which receives telemetry data transmitted wirelessly from two remote systems located on separate stages of 2-stage rocket. 
-			The job of the groundstation is to interpret raw telemetry data, calculate derived values, and provide an application which visualizes this data.
+			The HART CS groundstation is a system which receives telemetry data transmitted wirelessly from two remote systems located on separate stages of a 2-stage rocket. 
+			The job of the groundstation is to interpret raw telemetry data, calculate derived values, and provide an application which visualizes this data, all in the service of allowing the ground team to track and recover the rocket stages and determine whether the target atitude is reached..
 			These displays will take the form of both 2-dimensional graphs (for parameters including altitude, vertical and horizontal velocity, acceleration, barometric pressure and thrust) and also a 3-dimensional visualization of the rocket stage trajectories.
 
 		\subsection{Glossary}
@@ -100,6 +99,18 @@
 				\item \textbf{Avionics}
 					The guidance system for the rocket, which controls engine ignition and parachute deployment.
 					The avionics system also transmits telemetry to a groundstation.
+				\item \textbf{Backend}
+					[tbd]
+				\item \textbf{Frontend}
+					[tbd]
+				\item \textbf{HART}
+					High Altitude Rocketry Team
+				\item \textbf{Karman Line}
+					[tbd]
+				\item \textbf{Non-Volatile Storage}
+					[tbd]
+				\item \textbf{Sub-Team}
+					A disciplinary or task-level subdivision of the larger multidisciplinary HART team.
 
 			\end{itemize}
 
@@ -107,22 +118,24 @@
 			[Remove if unnecessary]
 
 		\subsection{Overview}
-			The following sections provide a description of the necessary system functions and of system interactions with external libraries and external data sources.
-			[Description of each section]
+			The following sections provide a description of the necessary system functions and of system interactions with external libraries and data sources.
+			The following sections \textit{Overall Description} discusses the system in broad terms and details a number of important design considerations. 
+			The final section \textit{Specific Requirements} enumerates and breaks downm specific requirements and expectations for the final system.
 
 
 	\newpage
 	\section{Overall Description}
-		[Description of the section]
-
 		\subsection{Product Perspective}
-			This software will consist of a server backend which receives telemetry data broadcast by avionics systems located on both stages of a 2-stage rocket, and interprets that data into additional derived values. 
-			The server backend will communicate with a frontend application which provides visualization for raw and interpreted data in 2-dimensional graphs, and generates a 3-dimensional model for the trajectory of both stages of the rocket.
+			This software will consist of a server backend which receives telemetry data broadcast by avionics systems located on both stages of a 2-stage rocket and interprets that data into additional derived values. 
+			The server backend will communicate with a frontend application which provides visualization for raw and interpreted data in 2-dimensional graphs, and generates a 3-dimensional model for the location and trajectory of both stages of the rocket throughout the duration of the flight.
 
 		\subsection{Product Functions}
 			The final deliverable can essentially be broken down into two main components, hereafter referred to as the backend and the frontend.
 			The first component, the backend, will be responsible for the receiving and subsequent processing of raw telemetry.
 			This implies two primary functions for the backend: first, the processing of telemetry into a form usable by the frontend, and second, the storing of telemetry for later revisiting.
+			The ability to store data is a critical consideration, as this year's launch effort is only a step toward the ultimate goal of launching a rocket built by OSU students to above the Karman Line.
+			As such, all information gathered during this year's project should be preserved and made availbale to subsequent teams, a requirement which necessitates the transfer of data to non-volatile storage.
+			
 			The second component, the frontend, will in turn be responsible for displaying the processed telemetry in a meaningful and useful manner.
 			This portion of the product can be futher broken two into two sub-components.
 			The first sub-component shall display the in-flight characteristics of the airframe including altitude, vertical and horizontal velocity, acceleration, barometric pressure and thrust in a series of continuously-updated 2-dimensional graphs or numerical readouts. 
@@ -142,29 +155,40 @@
 			The software must receive telemetry data broadcast in realtime.
 			The software must store all received and interpreted data for later use.
 			The graphical user interface must be reliable and dependable.
+			The entire system should be capable of operating on minimal hardware.
 
 		\subsection{Assumptions and Dependencies}
-			For this sytem to operate there are two key assumptions to consider.
+			For this sytem to operate there are several key assumptions to consider.
+			
 			First and foremost is the ability to actually launch the final rocket. 
-			Our project is part of a multi-disciplinary effort and we are reliant upon several ME teams for the design and constrution of the actual airframe.
 			Given the nature of rocket flight, there are a number of factors beyond our sub-team's control which have the potential to interfere with a full-scale launch, most notably the weather, poor weather on the day of launch having the potential to scrub the entire mission.
 			A further caveat to this is that a full-scale launch to our target altitude cannot be conducted locally.
-			This restriction necessitates that HART travels to Spaceport America in New Mexicio for full-scale, full-altitude launches, a necessity which is of subject to budgetary considerations, among others.
+			This restriction necessitates that HART travels to Spaceport America in New Mexicio for full-scale, full-altitude launches, a necessity which is of subject to budgetary and logistical considerations.
 
-			The second assumption is that the HART ECE sub-team's avionics system will be fully operational and able to broadcast telemetry for any flights during which the groundstation software is used.
+			The second assumption is that an air-worthy rocket is ultimately produced.
+			Our project is part of a multi-disciplinary effort and we are reliant upon several ME teams for the design and construction of the actual airframe.
+			The failure to complete the airframe or a catastrophic failure upon launch has the potential to render telemtry capture impossible and irrelevant.
+			
+			The third assumption is that the HART ECE sub-team's avionics system will be fully operational and able to broadcast telemetry for any flights during which the groundstation software is used.
 			Even assuming that the avionics system is completed, a component failure while in-flight or high levels of electromagnetic interference have the potential to disrupt the groundstation's ablity to reliably receive telemetry.
+			Note that we are proceeding under the furhter assumption that the ECE sub-team will be installing a Telemega chip set in the ultimate rocket.
+			
+			Finally, we are operating under the asssumption that due to budgetary considerations we will be re-using the groundstation hardware from previous years, which runs a Linux distribution on a Raspberry Pi board.
 
 		\subsection{Apportioning of Requirements}
-			[Input desired]
-			In the case that the project is delayed, some requirements involving the web application can be dismissed. Provided that telemetry data is stored on the groundstation, the 2-dimensional visualization can be performed by third-party software without the use of a specialized web-application.
-
+			Currently our final launch is scheduled for June 2019, though all systems should be functionally complete in time for a potential full-scale test launch in April-May 2019.
+			Sub-scale tests beginning in Winter term 2019 will also be an opportunity to evaluate system components for proper function should they be ready at that time,
+			In the case that the project is delayed, some requirements involving the frontend can be dismissed or delayed. Most notably, provided that telemetry data is stored by the groundstation, the 2-dimensional visualization can be performed by third-party software without the use of a specialized web-application.
+			Analysis on captured data could also potential be completed after the flight rather than in real-time.
+			See Gantt Chart, Figure 1.
 
 	\newpage
 	\section{Specific Requirements}
-		[Description of the section]
-
 		\subsection{Interfaces}
-			[Describe the web application? I think?]
+			As discussed above there will be two primary means of user interaction with this system, each having a varying degree of actual interaction.
+			Both means will require the user to connect to the groundstation via a web browser or similar interface.
+			The first point of user interaction will be strictly passive, and will involve the display of various flight characteristics via a series of 2D graphs and numerical readouts.
+			The second will involve the 3D visualiztion of the flight path and location of stages, and will over a more dynamic user experience allowing for the manipulation of eye-position and/or viewing angle.
 
 		\subsection{Functional Requirements}
 			This section includes the requirements that specify the fundamental actions of the software system. Furthermore, it describes the necessary outcomes that are expected by the client.
@@ -228,6 +252,13 @@
 			RAT: The ability to display the flight path and location of the rocket will allow the ground team to monitor for emergent conditions which may threaten the safety of the airframe or ground personnel.
 				Additionally, stage location information will be critical to airframe recovery efforts.\\
 			DEPEND: FR1, FR6\\
+			
+			\noindent
+			\textbf{ID: FR9}\\
+			TITLE: Data Storage\\
+			DESC: The software should record all processed data onto non-volatile storage.\\
+			RAT: As this year's effort is only a stepping stone toward the ultimate goal of launching a student-built rocket to the Karman Line, it is critical to make all the data gathered availble to future teams in order to inform their subsequent designs.\\
+			DEPEND: FR4, FR6\\
 			%
 			%\noindent
 			%\textbf{ID: FR[N]}\\
@@ -255,10 +286,17 @@
 			DEPEND: QR1\\
 			
 			\noindent
-			\textbf{ID: QR[N]}\\
+			\textbf{ID: QR3}\\
 			TITLE: Interactive Visualization\\
 			DESC: The 3-dimensional trajectory and location visualization should be interactive to allow the user to adjust the eye-position and/or viewing angle.\\
 			RAT: Given that a 3D flight path can proceed in any number of lateral directions, it will likely become necessary to adjust the eye-position and/or viewing angle to prevent display occlusion and aid in meaningful location association.\\
+			DEPEND: \\
+			
+			\noindent
+			\textbf{ID: QR4}\\
+			TITLE: Data Accessibility\\
+			DESC: Data should be stored in a manner which is accessible to other users via standard text editor applications, and in a form which is conducive to meaningful processing via means such as scripts.\\
+			RAT: As this year's effort is only a stepping stone toward the ultimate goal of launching a student-built rocket to the Karman Line, it is critical to make all the data gathered availble to future teams in order to inform their subsequent designs.\\
 			DEPEND: \\
 
 			%[Here's a template for this, go ahead and write whatever requirements you can think of]
