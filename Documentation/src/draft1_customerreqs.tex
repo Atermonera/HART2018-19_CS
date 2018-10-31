@@ -2,6 +2,7 @@
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage{setspace}
+\usepackage{pgfgantt}
 
 \usepackage{geometry}
 \geometry{textheight=9.5in, textwidth=7in}
@@ -205,28 +206,28 @@
 			DESC: The software should display the current acceleration of the rocket.\\
 			RAT: The ability to display the current acceleration being experienced by the rocket will allow the ground team to monitor for emergent conditions which may threaten the safety of the airframe or ground personnel.
 				Additionally, acceleration information will be useful for monitoring stage progression to include recovery deployment success.\\
-			DEPEND: \\
+			DEPEND: None
 			
 			\noindent
 			\textbf{ID: FR2}\\
 			TITLE: Altitude Display\\
 			DESC: The software should display the altitude of the rocket.\\
 			RAT: Given that the goal of HART is to launch a rocket to a minimum altitude, the display of current and peak altitude will allow the team to monitor progress and determine success on the day.\\
-			DEPEND: \\ 
+			DEPEND: None\
 			
 			\noindent
 			\textbf{ID: FR3}\\
 			TITLE: Barometric Pressure Display\\
 			DESC: The software should display the current barometric pressure experienced by the rocket.\\
 			RAT: The ability to display the current barometric pressure being experienced by the rocket will allow the ground team to monitor for emergent conditions which may threaten the safety of the airframe or ground personnel.\\
-			DEPEND: \\
+			DEPEND: None
 			
 			\noindent
 			\textbf{ID: FR4}\\
 			TITLE: Thrust Interpretation\\
 			DESC: The software should interpret the acceleration telemetry into the thrust provided by the rocket motors.\\
 			RAT: Providing the thrust curve produced by a rocket motor allows users to analyze the rocket motor's performance.\\
-			DEPEND: \\
+			DEPEND: None
 			
 			\noindent
 			\textbf{ID: FR5}\\
@@ -234,7 +235,7 @@
 			DESC: The software should display the current thrust level of the rocket.\\
 			RAT: The ability to display the current acceleration being experienced by the rocket will allow the ground team to monitor for emergent conditions which may threaten the safety of the airframe or ground personnel.
 				Additionally, thrust information will be critical for monitoring stage progression.\\
-			DEPEND: FR4\\
+			DEPEND: FR4
 			
 			\noindent
 			\textbf{ID: FR6}\\
@@ -242,14 +243,14 @@
 			DESC: The software should interpret the acceleration and altitude telemetry into velocity data.\\
 			RAT: The telemetry data will provide only information pertaining to the rocket's orientation, acceleration, altitude, and GPS position.
 				Determining the velocity of the rocket allows users to correlate changes in performance with the passing of specific velocities, such as Mach one.\\
-			DEPEND: \\
+			DEPEND: None
 			
 			\noindent
 			\textbf{ID: FR7}\\
 			TITLE: Velocity Display\\
 			DESC: The software should display the current vertical and horizontal acceleration of the rocket.\\
 			RAT: The ability to display the current vertical and horizontal acceleration of the rocket will allow the ground team to monitor for emergent conditions which may threaten the safety of the airframe or ground personnel.\\
-			DEPEND: FR6\\
+			DEPEND: FR6
 			
 			\noindent
 			\textbf{ID: FR8}\\
@@ -257,53 +258,53 @@
 			DESC: The software should display the flight path and current location of the rocket.\\
 			RAT: The ability to display the flight path and location of the rocket will allow the ground team to monitor for emergent conditions which may threaten the safety of the airframe or ground personnel.
 				Additionally, stage location information will be critical to airframe recovery efforts.\\
-			DEPEND: FR1, FR6\\
+			DEPEND: FR1, FR6
 			
 			\noindent
 			\textbf{ID: FR9}\\
 			TITLE: Data Storage\\
 			DESC: The software should record all processed data onto non-volatile storage.\\
 			RAT: As this year's effort is only a stepping stone toward the ultimate goal of launching a student-built rocket to the Karman Line, it is critical to make all the data gathered available to future teams in order to inform their subsequent designs.\\
-			DEPEND: FR4, FR6\\
+			DEPEND: FR4, FR6
 			%
 			%\noindent
 			%\textbf{ID: FR[N]}\\
 			%TITLE: \\
 			%DESC: \\
 			%RAT: \\
-			%DEPEND: \\
+			%DEPEND: 
 		
 		\subsection{Performance Requirements}
 			This section provides a detailed specification of user interaction with the software and performance metrics for the software.
 		
 			\noindent
-			\textbf{ID: QR1}\\
+			\textbf{ID: QR1}
 			TITLE: Telemetry Reception\\
 			DESC: The software should receive telemetry in real-time.\\
 			RAT: The avionics systems will be broadcasting telemetry in real-time. 
 				If the groundstation software is not receiving data at the same rate, packets of telemetry data will be lost.\\
-			DEPEND: \\
+			DEPEND: None
 			
 			\noindent
-			\textbf{ID: QR2}\\
+			\textbf{ID: QR2}
 			TITLE: Real-time Visualization\\
 			DESC: The visualization application should update with telemetry data in real-time, as it is received by the groundstation.\\
 			RAT: Monitoring the rocket's status while it is in flight but not visually tracked is important in determining if the parachutes have deployed, as a failure at this stage poses a significant safety hazard to personnel on the ground. \\
-			DEPEND: QR1\\
+			DEPEND: QR1
 			
 			\noindent
 			\textbf{ID: QR3}\\
 			TITLE: Interactive Visualization\\
 			DESC: The 3-dimensional trajectory and location visualization should be interactive to allow the user to adjust the eye-position and/or viewing angle.\\
 			RAT: Given that a 3D flight path can proceed in any number of lateral directions, it will likely become necessary to adjust the eye-position and/or viewing angle to prevent display occlusion and aid in meaningful location association.\\
-			DEPEND: \\
+			DEPEND: None
 			
 			\noindent
 			\textbf{ID: QR4}\\
 			TITLE: Data Accessibility\\
 			DESC: Data should be stored in a manner which is accessible to other users via standard text editor applications, and in a form which is conducive to meaningful processing via means such as scripts.\\
 			RAT: As this year's effort is only a stepping stone toward the ultimate goal of launching a student-built rocket to the Karman Line, it is critical to make all the data gathered available to future teams in order to inform their subsequent designs.\\
-			DEPEND: \\
+			DEPEND: None
 
 			%[Here's a template for this, go ahead and write whatever requirements you can think of]
 			%\noindent
@@ -311,6 +312,75 @@
 			%TITLE: \\
 			%DESC: \\
 			%RAT: \\
-			%DEPEND: \\
+			%DEPEND: 
 
+	\section{Gantt Chart}
+		\begin{figure}
+			\begin{center}
+
+				\begin{ganttchart}[
+                    vgrid,hgrid, 
+                    title label anchor/.style={below=-1.6ex},
+                    title left shift=.05,
+                    title right shift=-.05,
+                    title height=1,
+                    y unit title = 0.5cm,
+                    bar/.style={fill=gray!50},
+                    x unit = 0.055cm,
+                    bar label node/.style={text width=3cm,align=right,font=\scriptsize\RaggedLeft,anchor=east},
+                    ]{1}{287}
+					%labels
+					% Year
+					\gantttitle{2018}{112}
+					\gantttitle{2019}{175}
+					\\
+					% Month
+					\gantttitle{Sep}{14} 
+					\gantttitle{October}{31}
+					\gantttitle{November}{30}
+					\gantttitle{December}{31}
+					\gantttitle{January}{31}
+					\gantttitle{February}{28}
+					\gantttitle{March}{31}
+					\gantttitle{April}{30}
+					\gantttitle{May}{31}
+					\gantttitle{June}{30}
+					\\
+					%Week
+					\gantttitlelist{19,24,01,08,15,22,29,05,12,19,26,03,10,17,24,31,07,14,21,28,
+									04,11,18,25,04,11,18,25,01,08,15,22,29,06,13,20,27,03,10,17,22}{7} \\
+					%tasks
+					%\ganttbar{Name}{Start}{End} \\
+					% Calculate dates from 10 Sep 2018, give in number of days
+					% Design
+					\ganttbar{Problem Statement}{28}{39} \\
+					\ganttbar{Customer Requirements}{43}{81} \\
+					\ganttbar{Tech Review, Draft 1}{50}{53} \\
+					\ganttbar{Tech Review}{55}{81} \\
+					\ganttbar{Team Standards}{50}{57} \\
+					\ganttbar{Design Document}{64}{78} \\
+					\ganttbar{Tech Research and Development}{63}{88} \\
+					% Implementation
+					\ganttbar{FR1: Acceleration Display}{113}{143} \\
+					\ganttbar{FR2: Altitude Display}{113}{143} \\
+					\ganttbar{FR3: Barometric Pressure Display}{144}{174} \\
+					\ganttbar{FR5: Thrust Interpretation}{144}{174} \\
+					\ganttbar{FR5: Thrust Display}{159}{189} \\
+					\ganttbar{FR6: Velocity Interpretation}{113}{143} \\
+					\ganttbar{FR7: Velocity Display}{128}{158} \\
+					\ganttbar{FR8: Flight Path and Location Display}{175}{205} \\
+					\ganttbar{FR9: Data Storage}{113}{143} \\
+					\ganttbar{QR1: Telemetry Reception}{144}{174} \\
+					\ganttbar{QR2: Real-time Visualization}{175}{205} \\
+					\ganttbar{QR3: Interactive Visualization}{144}{174} \\
+					\ganttbar{QR4: Data Accessibility}{113}{273} \\
+					\ganttbar{Testing}{113}{273} \\
+					% Presentation
+					\ganttbar{EXPO}{255}{256} \\
+					\ganttbar{Spaceport America Cup: Presentation}{282}{283} \\
+					\ganttbar{Spaceport America Cup: Flight}{283}{285} \\
+				\end{ganttchart}
+			\end{center}
+			\caption{Gantt Chart}
+		\end{figure}
 \end{document}
