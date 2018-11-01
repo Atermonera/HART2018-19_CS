@@ -10,7 +10,7 @@ class kalman:
     
     #Pass the filter a new measurement, which it uses to update it's current estimate
     def newMeasurement(self, measurement, measurementUncertainty):
-        kalmanGain = self.currentUncertainty / (self.currentUncertainty + measurementUncertainty)
+        kalmanGain = self.currentUncertainty / (0.0000001 + self.currentUncertainty + measurementUncertainty)
         self.currentEstimate = self.currentEstimate + kalmanGain * (measurement - self.currentEstimate)
         self.currentUncertainty = (1 - kalmanGain) * self.currentUncertainty
 
