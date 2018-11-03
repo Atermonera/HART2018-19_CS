@@ -11,33 +11,30 @@ pressureUncertaintyIndex = 180 # Pressure index to increase uncertainty, to simu
 maxVelocity = 400
 
 #Start running things
-generate
+generate # Run generate.py to create curves for barometric pressure and velocity
 
-velocityFilter = kalmanFilter.kalman(initialVelocity, 100)
-pressureFilter = kalmanFilter.kalman(initialPressure, initialPressure * pressureUncertainty)
+velocityFilter = kalmanFilter.velocityKalman(initialVelocity, 5, 5)
 
 velocityFile = open("smoothVelocity", "w")
 velocityFile.write("Time (s), Velocity\n")
-pressureFile = open("smoothPressure", "w")
-pressureFile.write("Time (s), Pressure\n")
 
-with open("velocity", "r") as file:
-    file.readline() # Get rid of header line
-    line = file.readline()
-    while(line):
-        time, velocity = map(float, line.split(','))
-        velocityFilter.newMeasurement(velocity, velocity * velocityUncertainty)
-        velocityFile.write("%f, %f\n" % (time, velocityFilter.getCurrentEstimate()))
-        line = file.readline()
+pressureData = open("pressure", "r")
+velocityData = open("velocity", "r")
 
-with open("pressure", "r") as file:
-    file.readline() # Get rid of header line
-    line = file.readline()
-    while(line):
-        time, pressure = map(float, line.split(','))
-        pressureFilter.newMeasurement(pressure, pressure * pressureUncertainty)
-        pressureFile.write("%f, %f\n" % (time, pressureFilter.getCurrentEstimate()))
-        line = file.readline()
+#Get header files out of the way
+pressureLine = pressureData.readline()
+velocityLine = velocityData.readline()
+#Read first data lines
+pressureLine = pressureData.readline()
+velocityLine = velocityData.readline()
+
+while(velocityLine):
+    timeV, velocity = map(float, pressureLine.split(','))
+    pressureLine = pressureData.readline()
+    timeP, pressure = map(float, velocityLine.split(','))
+    velocityLine = velocityData.readline()
 
 velocityFile.close()
-pressureFile.close()
+
+def calcAccel(x):
+    return -2*(x - 500)/625 # Derivative of our velocity equation, this finds the acceleration given time for the kalman filter

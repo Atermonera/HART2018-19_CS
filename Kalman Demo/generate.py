@@ -14,7 +14,7 @@ pressure = 0.0
 pressureUncertainty = 0.1 # Assume 10% base uncertainty for the barometric pressure
 random.seed()
 zeroPressureStart, zeroPressureEnd = 500, 505 # Times to zero out pressure, for testing shock waves
-pressureUncertaintyIndex = 180 # Pressure index to increase uncertainty, to simulate high altitude
+pressureUncertaintyIndex = 75 # Pressure index to increase uncertainty, to simulate high altitude
 maxVelocity = 400
 
 with open("velocity", "w") as file:
@@ -41,12 +41,12 @@ with open("pressure", "w") as file:
         if currentTime >= zeroPressureStart and currentTime <= zeroPressureEnd: #Simulate 5 second error where pressure reads 0
             pressure = 0
         else:
-            pressure = -0.0005 * math.pow(currentTime - 500, 2) + 200 # Quadratic equation to simulate pressure
+            pressure = -0.0002 * math.pow(currentTime, 2) + 200 # Quadratic equation to simulate pressure
         
         #Create uncertainty in pressure...
         randVariance = random.uniform(pressure * pressureUncertainty, -1 * pressure * pressureUncertainty)
-        if pressure > pressureUncertaintyIndex: #Simulate higher variance at high alititudes
-            randVariance *= 2
+        if pressure < pressureUncertaintyIndex: #Simulate higher variance at high alititudes
+            randVariance *= 3
         pressure += randVariance
 
         file.write("%f, %f\n" % (currentTime, pressure))

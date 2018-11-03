@@ -1,18 +1,29 @@
 #!/usr/bin/python
+import math
+import numpy as np
+class velocityKalman:
+    # currentState_mat
+    # A_mat
+    # B_mat
+    # H_mat
+    # pc_mat
+    # kalmanGain_mat
+    # R_mat
 
-class kalman:
-    currentEstimate = 0 # This filter's current estimation for the real measurement
-    currentUncertainty = 0 # This filter's current estimation of the uncertainty of it's estimation
-
-    def __init__(self, initialEstimate, initialUncertainty):
-        self.currentEstimate = initialEstimate
-        self.currentUncertainty = initialUncertainty
+    def __init__(self, initialPressure, initialPressureUncertainty, initialVelocity, initialVelocityUncertainty, frequency):
+        self.currentState_mat = np.matrix([initialPressure, initialVelocity])
+        self.A_mat = np.matrix([[1, 1.0/frequency], [0, 1]])
+        self.B_mat = np.matrix([0.5 * math.pow(1.0/frequency, 2), 1.0/frequency])
+        self.H_mat = np.matrix([[1, 0], [0, 1]])
+        self.pc_mat = np.matrix([[math.pow(initialPressureUncertainty, 2), 0],[0, math.pow(initialVelocityUncertainty, 2)]])
+        self.pc_
     
     #Pass the filter a new measurement, which it uses to update it's current estimate
-    def newMeasurement(self, measurement, measurementUncertainty):
-        kalmanGain = self.currentUncertainty / (0.0000001 + self.currentUncertainty + measurementUncertainty)
-        self.currentEstimate = self.currentEstimate + kalmanGain * (measurement - self.currentEstimate)
-        self.currentUncertainty = (1 - kalmanGain) * self.currentUncertainty
+    def newMeasurement(self, pressure, pressureUncertainty, velocity, velocityUncertainty, acceleration):
+        print "nothing"
 
     def getCurrentEstimate(self):
-        return self.currentEstimate
+        return self.currentState_mat
+
+    def getCurrentUncertainty(self):
+        return self.pc_mat
