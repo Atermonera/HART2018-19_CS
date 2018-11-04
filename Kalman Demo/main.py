@@ -13,32 +13,43 @@ maxVelocity = 400
 #Start running things
 generate # Run generate.py to create curves for barometric pressure and velocity
 
-velocityFilter = kalmanFilter.velocityKalman(initialPressure, 7.5, initialVelocity, 10, 5)
-
 velocityFile = open("smoothVelocity", "w")
 velocityFile.write("Time (s), Velocity\n")
+pressureFile = open("smoothPressure", "w")
+pressureFile.write("Time (s), Pressure\n")
+
 
 pressureData = open("pressure", "r")
 velocityData = open("velocity", "r")
+accelerationData = open("acceleration", "r")
 
 #Get header files out of the way
 pressureLine = pressureData.readline()
 velocityLine = velocityData.readline()
+accelerationLine = accelerationData.readline()
 #Read first data lines
 pressureLine = pressureData.readline()
 velocityLine = velocityData.readline()
+accelerationLine = accelerationData.readline()
+timeV, velocity = map(float, velocityLine.split(','))
+timeP, pressure = map(float, pressureLine.split(','))
 
-def calcAccel(x):
-    return -2*(x - 500)/625 # Derivative of our velocity equation, this finds the acceleration given time for the kalman filter
-counter = 0
-while(counter < 10):
-    print("Iteration: %d" % (counter))
-    timeV, velocity = map(float, pressureLine.split(','))
-    pressureLine = pressureData.readline()
-    timeP, pressure = map(float, velocityLine.split(','))
-    velocityLine = velocityData.readline()
-    velocityFilter.newMeasurement(pressure, pressureUncertainty * pressure, velocity, velocity * velocityUncertainty, 0)
-    velocityFile.write("%f, %f\n" % (timeV, velocityFilter.getCurrentVelocity()))
-    counter+=1
+velocityFilter = kalmanFilter.velocityKalman(pressure, pressure * pressureUncertainty * 0.5, velocity, 5, 5)
+
+# def calcAccel(x):
+#     return -2*(x - 500)/625 # Derivative of our velocity equation, this finds the acceleration given time for the kalman filter
+
+while(velocityLine):
+    timeV, velocity = map(float, velocityLine.split(','))
+    velocityLine = pressureData.readline()
+    timeP, pressure = map(float, pressureLine.split(','))
+    pressureLine = velocityData.readline()
+    timeA, accel = map(float, accelerationLine.split(','))
+    accelerationLine = accelerationData.readline()
+    velocityFilter.newMeasurement(pressure, pressureUncertainty * pressure, velocity, velocity * velocityUncertainty, accel)
+    velocityFile.write("%f, %f+-%f\n" % (timeV, velocityFilter.getCurrentVelocity(), velocityFilter.getCurrentVelocityUncertainty()))
+    pressureFile.write("%f, %f+-%f\n" % (timeV, velocityFilter.getCurrentPressure(), velocityFilter.getCurrentPressureUncertainty()))
 
 velocityFile.close()
+pressureData.close()
+velocityData.close()
