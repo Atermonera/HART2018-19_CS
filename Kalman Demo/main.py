@@ -13,7 +13,7 @@ maxVelocity = 400
 #Start running things
 generate # Run generate.py to create curves for barometric pressure and velocity
 
-velocityFilter = kalmanFilter.velocityKalman(initialVelocity, 5, 5)
+velocityFilter = kalmanFilter.velocityKalman(initialPressure, 7.5, initialVelocity, 10, 5)
 
 velocityFile = open("smoothVelocity", "w")
 velocityFile.write("Time (s), Velocity\n")
@@ -28,13 +28,17 @@ velocityLine = velocityData.readline()
 pressureLine = pressureData.readline()
 velocityLine = velocityData.readline()
 
-while(velocityLine):
+def calcAccel(x):
+    return -2*(x - 500)/625 # Derivative of our velocity equation, this finds the acceleration given time for the kalman filter
+counter = 0
+while(counter < 10):
+    print("Iteration: %d" % (counter))
     timeV, velocity = map(float, pressureLine.split(','))
     pressureLine = pressureData.readline()
     timeP, pressure = map(float, velocityLine.split(','))
     velocityLine = velocityData.readline()
+    velocityFilter.newMeasurement(pressure, pressureUncertainty * pressure, velocity, velocity * velocityUncertainty, 0)
+    velocityFile.write("%f, %f\n" % (timeV, velocityFilter.getCurrentVelocity()))
+    counter+=1
 
 velocityFile.close()
-
-def calcAccel(x):
-    return -2*(x - 500)/625 # Derivative of our velocity equation, this finds the acceleration given time for the kalman filter
