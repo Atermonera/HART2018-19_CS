@@ -123,7 +123,16 @@ Further information regarding the agreed upon project requirements and specifica
 		Oregon State University.
 	\item \textbf{USC:}
 		University of Southern California.
+	\item \textbf{COCOM:}
+		An abbreviation for "Coordinating Committee for Multilateral Export Controls."
+		It ceased to function in 1994, but has a legacy of GPS restrictions preventing GPS-guided ballistic missiles.
+		These restrictions will affect the telemetry available for a period of the rocket's flight when it exceeds 515 meters per second and 18 kilometers altitude above ground level.
 \end{itemize}
+
+\subsection{References}
+			
+	[1]"COCOM - COCOM GPS Tracking Limits | Coordinating Committee for Multilateral Export Controls", Ravtrack, English, 2018. [Online]. Available:http://ravtrack.com/GPStracking/cocom-gps-tracking-limits/469/. [Accessed: 25- Nov- 2018].
+
 \newpage
 
 %-----------------------------------------------------------
@@ -132,24 +141,31 @@ Further information regarding the agreed upon project requirements and specifica
 The OSU chapter of the AIAA is seeking to break the current collegiate high-altitude record for a student-built rocket.
 The current altitude record, set by a team from USC, is 144,000 feet.
 This effort will build on projects from previous years (2016-2017, 2017-2018) and is part of a long-term effort to win the University Space Race, a challenge to launch a student-built rocket to an altitude of 100 kilometers.
-To this end, HART will design and assemble a 2-stage solid-rocket motor, to be launched June 2019 at the Spaceport America Cup in New Mexico. 
+To this end, HART will design and assemble a 2-stage solid-rocket motor, to be launched at the 2019 Spaceport America Cup in New Mexico in late June. 
 
+% Problem statement
 Amateur high-powered rockets flying in excess of 5000 feet are no longer visible to the naked human eye. 
 Depending on the weather, time of day, and location of the launch pad relative to the observer, the rocket may potentially be obscured by the sun or cloud cover, further complicating visual tracking efforts. 
 As such, HART's rocket must broadcast telemetry containing, at a minimum, some measure of altitude and position.
-This telemetry must then be received, interpreted and finally displayed to personnel on the ground by the avionics system.
-Because HART is a multi-disciplinary effort, the avionics system is divided among two sub-teams.
-The ECE sub-team has responsibility for the broadcast of telemetry data, as well as the avionics hardware which will be integrated into the rocket.
-The CS sub-team is then responsible for receiving this telemetry, processing the data into a usable form, and displaying relevant information in an easily digestible manner.
-To achieve this functionality, the CS portion of the avionics system will be further divided into a back-end and a front-end.
-  
-%some stuff about the back-end
+This telemetry must then be received, interpreted and finally displayed by the groundstation system to personnel on the ground.
+Because HART is a multi-disciplinary effort, the avionics and groundstation systems are divided among two sub-teams.
+The ECE sub-team is responsible for the broadcast of telemetry data, as well as the design and manufacture of the avionics hardware which will be integrated into the rocket.
+The CS sub-team is responsible for receiving this telemetry, processing the data into a usable form, and displaying relevant information in an easily digestible manner.
+To achieve this functionality, the CS portion of the groundstation system will be further divided into a back-end and a front-end.
 
+% Backend overview
+The back-end subsystem will receive raw telemetry data from the rocket via an omnidirectional radio antenna.
+Received telemetry will contain measurements of temperature, barometric altitude, accelerometer, gyroscopic orientation, and GPS position when availabe.
+These measurements will be used to update an internal model of the positions of both rocket stages.
+The internal model will reduce noise in the telemetry data and allow for interpolation of rocket velocity and thrust achieved by the rocket motors.
+Raw telemetry data and processed data from the model will be output to files for long-term storage, further analysis, and use by future HART teams.
+
+%Frontend overview
 Once received data is processed by the front-end, it is passed to the front-end.
 The front-end has two broad functions.
 Firstly, it is the front-end which is responsible to displaying the position of both rocket stages during and immediately following flight.
-This includes both near real-time positions and a persistent flight path derived from positions previously reported.
-This location display is primarily intended as an aid to the ultimate recovery of the rocket stages post-flight, but also serves the ancillary goal of monitoring for any emergent in-flight conditions which effect the flight path of the rocket.
+This includes both near real-time positions and a persistent flight path derived from previously reported positions.
+This location display is primarily intended as an aid to the ultimate recovery of the rocket stages post-flight, but also serves the ancillary goal of monitoring for any emergent in-flight conditions which affect the flight path of the rocket.
 Secondly, the front-end is responsible for displaying a full range of received and derived telemetry data to users.
 This data includes the rocket’s altitude, vertical and horizontal velocity, acceleration, barometric pressure and the thrust achieved from the rocket motors.
 Both of these functions will be implemented via a web-based interface hosted off of the ground station and accessible to any team member with a web-enabled device via connection to the ground station's integrated router. 
@@ -173,46 +189,201 @@ The application shall consist of a single web page (hereafter referred to as the
 This page will feature two sections.
 The first section is responsible for displaying the current location(s) and flight path of the rocket 3-dimensionally.
 
-%some stuff about the back-end
+The back-end shall consist of a system responsible for receiving the telemetry of both stages and two systems for modelling the state of each rocket stage.
 
 %-----------------------------------------------------------
 
 \section{Avionics System Perspective}
 
+\subsection{Design Stakeholders}
+
+\subsection{Design Viewpoints}
+
+\subsubsection{Context Viewpoint}
+
+\subsubsection{Interface Viewpoint}
+
+\subsection{Structure Viewpoint}
+
+\subsubsection{Interaction Viewpoint}
 
 %-----------------------------------------------------------
 
-\section{Component Design}
+\section{Back-End}
 
-%back-end stuff goes here
-
-
-
-
-
-
-\subsection{Data Processing}
-Given that this year's HART effort builds on work done in the two previous school years, the processing of data will be a significant first step. 
-There have been large amounts of unprocessed telemetry data collected from previous launches which offers a chance to analyze and subsequently improve upon earlier performance. 
-In particular, there is a significant amount of data on the in-flight thrust characteristics of these earlier rockets. 
-The processing and subsequent analysis of this data is central to HART's ability to improve upon OSU's existing launch capability not only in terms of altitude but also in reliability (which was an issue during last year's launch).
-
-Furthermore, the current HART team anticipates making several test launches prior to the ultimate competition launch at Spaceport America, including at least one full scale, full altitude test. 
-The ability to process and analyze data from these tests will allow us to work toward the final airframe and thruster design as well as to detect and address potential issues along the way. 
-This ties into the second category: telemetry.
+This section will explain the subsystems of the back-end groundstation system.
+Each subsystem will be broken up into multiple components.
+Each component will be explained in two levels.
+These levels are algorithm and design rationale.
 
 \subsection{Telemetry}
+
+This section will explain the design of the back-end subsystem responsible for the reception and storaege of raw telemetry data from the rocket.\\
+\noindent
 Capturing accurate and reliable in-flight telemetry data is perhaps the most important problem in this project for several reasons. 
 Firstly, given that this effort is fundamentally a competition, both in terms of this year's attempt to best the current altitude record and the ultimate goal of winning the University Space Race, the ability to accurately monitor and record the altitude reached by our rocket is absolutely mission critical. 
 Secondly, after speaking to Dr. Squires, HART's faculty sponsor, it appears that last year's team was less than successful in capturing telemetry, a shortcoming which threatened the progress made by that team (as incomplete/inaccurate data is of questionable use). 
-As the ultimate goal of this project is to achieve a minimum altitude of 144,000 feet and the rocket is, of course, unmanned, capturing telemetry is the only way we will be able to determine success or failure.
+As the ultimate goal of this project is to achieve a minimum altitude of 144,000 feet and the rocket is, of course, unmanned, capturing telemetry is the only way we will be able to determine success or failure.\\
+\noindent
+This section will additionally describe the physical hardware necessary for the component to function, where applicable.
 
-\subsection{Visualization of In-Flight Data}
-Finally, while perhaps less mission critical than telemetry capture, the ability to visualize certain in-flight characteristics of our rocket has several important implications for our project.
-As the final rocket will be moving at high speeds well beyond the range of unaided human vision, this will be the only way the team on the ground will be able to monitor the rocket during flight. 
-The need for this becomes apparent when one understands that a successful flight comprises several critical stages including second stage ignition, expenditure of fuel stages, stage separation and deployment of arresting devices (parachutes). 
-Failures at any of these stages have the potential to demand action on the part of the ground team up to and including aborts. 
-Additionally, the ability to visualize the flight path of the rocket both complements the gathering of telemetry and serves to facilitate the timely recovery of components post-flight. 
+\subsubsection{Data Reception}
+
+\subsubsubsection{Algorithm}
+The telemetry data will be received via a socket from the external antenna.
+Once a packet is received, it will be decomposed into the various pieces of data contained within.
+When the rocket experiences specific events, such as stage separation, engine ignition, or parachute deployment, special packets will be broadcast signalling these events.
+When the rocket exceeds COCOM restrictions, GPS data will no longer be present in packets, and the structure of the packet will change accordingly.\\
+\noindent
+Once a packet has been decomposed into the set of data variables contained within, the variables will be reformatted into a JSON string and stored to a Flash drive.
+The variables will also be written to a pipe connecting the data reception subsystem to the data processing subsystem.
+The component must be fast enough that it is able to receive and store a packet of data faster than the rocket stages are able to transmit it.
+
+\subsubsubsection{Physical Implementation}
+Telemetry data will be received by an omnidirectional radio antenna designed and manufactured by the ECE sub-team.
+The antenna will connect to the groundstation via USB cable, and will format the data as a packet addressed to the port the data reception subsystem is listening to on the groundstation.
+
+\subsubsubsection{Rationale}
+Stable reception of telemetry is vital to the accurate tracking of the rocketry stages.
+Using a directional antenna, while cheaper and easier to design, requires manually pointing the antenna at the suspected location of the rocket.
+Because the rocket will exceed the range within which it is visible to the human eye within the first seconds of flight, accurately tracking its position in such a manner is extremely unreliable.
+Using an omnidirectional antenna requires a more powerful antenna overall, but does not require manual pointing, and needs to simply be held high enough to be clear to ground-based obstructions like shrubs, tents, and hills.
+Reformatting the incoming telemetry to be properly received by the listening port on the groundstation will require some care when generating telemetry packets on the avionics system, but should not prove to be too much of an obstacle to the development of the telemetry transmission system.
+
+
+\subsubsection{Data Storage}
+Storing the received and processed telemetry data is not strictly necessary for the visualization system, but does allow for later analysis of the rocket's flight.
+This analysis could be performed by third-party software or by feeding the telemetry data back into the groundstation system to simulate the live reception of the flight.
+This is important both to later demonstrate the flight's events, and to debug the rocket's systems based upon the emergence of unstable flight characteristics not predicted by the HART team.\\
+\noindent
+Given that this year's HART effort builds on work done in the two previous school years, the processing of data will be a significant first step. 
+There have been large amounts of unprocessed telemetry data collected from previous launches which offers a chance to analyze and subsequently improve upon earlier performance. 
+In particular, there is a significant amount of data on the in-flight thrust characteristics of these earlier rockets. 
+The processing and subsequent analysis of this data is central to HART's ability to improve upon OSU's existing launch capability not only in terms of altitude but also in reliability (which was an issue during last year's launch).\\
+\noindent
+Furthermore, the current HART team anticipates making several test launches prior to the ultimate competition launch at Spaceport America, including at least one full scale, full altitude test. 
+The ability to process and analyze data from these tests will allow us to improve the final airframe and thruster design as well as to detect and address potential issues along the way. 
+This ties into the second category: telemetry.
+
+
+\subsubsubsection{Algorithm}
+Data will be written in a JSON format, which is easily parsed and clearly labeled, making it both human- and machine-readable.
+
+\subsubsubsection{Physical Implementation}
+Data will be written to a file unique to the rocket stage and flight on a Flash drive.
+
+\subsubsubsection{Rationale}
+The JSON format is easily parsed by computers, and most browsers automatically support the decomposition of a JSON object into a client-side memory construct to provide data for a web page.
+This will ease the transmission of data to the front-end system.
+Storing the data on an external Flash drive will make it much more accessible, as the Flash drive can be removed from the groundstation and plugged into other, more powerful computers, to perform more specific analysis.
+
+
+\subsubsection{Telemetry Transmission to Data Processing Subsystem}
+Because the telemetry reception subsystem has the very tight time constraint of receiving transmissions in real time, it is safest to minimize the functional actions of the subsystem's process and interpret the telemetry on another process.
+Writing data to a separate function allows for a "fire and forget" approach, where data is written to a connecting bridge, and it is presumed that the other side is reading the data from the bridge at whatever pace is necessary.
+
+\subsubsubsection{Algorithm}
+The received telemetry data will be written to a software pipe connected to the data processing subsystem.
+
+\subsubsubsection{Physical Implementation}
+No physical hardware is necessary for a software pipe to function.
+
+\subsubsubsection{Rationale}
+The telemetry could be moved between functions using ports and sockets, pipes, or files.
+All three methods give access to blocking read and write functions that force the receiving program to wait until a complete set of new data is written.
+Ports and sockets require significant configuration, but allow for the telemetry reception and processing systems to execute on separate computers.
+Because the groundstation contains a single computer this is not necessary.
+Using a software pipe is slightly more efficient than using a temporary file to transmit data between the telemetry reception and processing systems
+
+
+\subsubsection{Telemetry Transmission to Front-end Subsystem}
+Similar to live reception of telemetry, sending telemetry to the front-end is time-critical to the live visualization of the flight.
+However, the code involved will be significantly different to the data processing system.
+It therefore makes more sense to extract it to a separate subsystem and reuse the inter-subsystem data transmission code used to send code from the data reception subsystem to the data processing subsystem.
+
+\subsubsubsection{Algorithm}
+The received telemetry data will be written to a software pipe connected to the data processing subsystem.
+
+\subsubsubsection{Physical Implementation}
+No physical hardware is necessary for a software pipe to function.
+
+\subsubsubsection{Rationale}
+This component follows the same rationale as the previously described component, the Telemetry Transmission to Data Processing Subsystem.
+
+
+\subsection{Data Processing}
+This section will explain the design of the back-end subsystem responsible for the processing of raw telemetry data from the rocket and the maintenance of an internal model of the rocket's position.\\
+\noindent
+Once received, the data will be largely incomplete.
+The available instrumentation covers barometric altitude, which is wholly unreliable above 100,000 feet above ground level, temperature, which can only roughly infer altitude, GPS position, which is unavailable once the rocket exceeds COCOM restrictions, and gyroscopic orientation and accelerometer data.
+These last two will be the only data sources with consistent reliability for the duration of the flight.
+Possessing altitude and acceleration measurements, it follows quite naturally to derive the velocity of the rocket stage.
+It is also useful to derive thrust data for the analysis of rocket motor performance.\\
+\noindent
+Additionally, the received telemetry data will contain noise due to minor variations in the physical condition of the rocket.
+Barometric pressure in particular will read an extreme drop in altitude when the supersonic shockwave forms around the rocket as it passes Mach 1.
+It is therefore useful to apply an algorithm to the received telemetry data to reduce this noise.
+
+
+\subsubsection{Velocity Derivation}
+The raw telemetry data will always include one measurement of vertical position, and one three-axis measurement of acceleration and orientation.
+While the rocket has not exceeded COCOM restrictions, GPS data will provide another measurement of vertical position and a measurement of horizontal position.
+This will provide one or two possible data sources to derive horizontal velocity along two axes, and two or three possible data sources to derive vertical velocity.
+
+\subsubsubsection{Algorithm}
+Barometric altitude can be derived into a measure of velocity by simply measuring the change between each packet.
+However, atmospheric pressure decreases exponentially, and so barometric altitude is only useful below around 100,000 feet above ground level.\\
+\noindent
+Accelerometer and gyroscope together provide the orientation of three axes, and the acceleration upon those axes.
+Three-axis velocity can be integrated by a Riemann sum over the timestep, but the data must first be converted from the orientation of the rocket to a fixed orientation, requiring additional processing.\\
+\noindent
+GPS provides very precise measurements of lateral position above the Earth's surface and vertical position above it.
+These position variables can be derived in a similar manner to barometric altitude, but will prove much more precise when GPS data is available.\\
+\noindent
+All available measurements of velocity will be combined in a weighted average accounting for 
+
+\subsubsubsection{Rationale}
+Because multiple data sources are available for position and acceleration, we can find a more accurate measurement of the rocket's velocity by calculating it from all available methods and accounting for the uncertainty of each data source.\\
+\noindent
+Atmospheric pressure approaches 1-2\% of the pressure at sea level, and most commercially available barometers fail to reliably detect changes in altitude above no higher than 100,000 feet above ground level, with many failing even lower.
+Because the rocket is expected to approach 150,000 feet above ground level, we cannot rely on barometric altitude to derive velocity for the entire duration of the flight.\\
+\noindent
+Accelerometer and gyroscope are independent of atmospheric pressure and lack the restrictions GPS is subject to, and so provide the most reliable measurement of velocity at all altitudes.
+However, because the rocket is spin-stabilized, the horizontal axes will be rapidly changing during the ascent, and all three axes will be rapidly changes as the rocket free-falls during descent until a drogue parachute is deployed.\\
+\noindent
+GPS data is a far more reliable measurement of position than barometric altitude.
+However, COCOM restrictions cause the GPS to disable itself when the rocket exceeds 1688 feet per second velocity and 59,055 feet in altitude.
+
+
+\subsubsection{Thrust Derivation}
+% Need input from Propulsion on how exactly to go about this
+
+\subsubsubsection{Algorithm}
+
+\subsubsubsection{Rationale}
+
+
+\subsubsection{Noise Reduction}
+% Kalman filter
+
+\subsubsubsection{Algorithm}
+
+\subsubsubsection{Rationale}
+
+
+%-----------------------------------------------------------
+
+\section{Visualization of In-Flight Data}
+This section will explain the components of the front-end system responsible for visualization of the processed telemetry data.
+% Describe how you'll break up the subsystems into subsections, and how each subsection will be explained
+
+% While perhaps less mission critical than telemetry capture, the ability to visualize certain in-flight characteristics of our rocket has several important implications for our project.
+% As the final rocket will be moving at high speeds well beyond the range of unaided human vision, this will be the only way the team on the ground will be able to monitor the rocket during flight. 
+% The need for this becomes apparent when one understands that a successful flight comprises several critical stages including second stage ignition, expenditure of fuel stages, stage separation and deployment of arresting devices (parachutes). 
+% Failures at any of these stages have the potential to demand action on the part of the ground team up to and including aborts. 
+% Additionally, the ability to visualize the flight path of the rocket both complements the gathering of telemetry and serves to facilitate the timely recovery of components post-flight. 
+
+%-----------------------------------------------------------
 
 \section{Proposed Solution}
 
@@ -221,8 +392,8 @@ The first will be a series of scripts which will allow for the processing of bot
 The second product will be software to actually capture, record and visualize in-flight data from our rockets and test platforms. 
 This latter part is both the more important and more complicated challenge for our sub-team.
 
-Currently the plan for gathering this telemetry data is for the ECE team to design and produce a printed circuit board (PCB) to be integrated into the rocket body. 
-This will connect to various pieces of sensing equipment, including a global positioning system (GPS) transceiver, barometer, altimeter and gyroscope. 
+Currently the plan for gathering this telemetry data is for the ECE team to design and produce a printed circuit board to be integrated into the rocket body. 
+This will connect to various pieces of sensing equipment, including a GPS transceiver, barometer, thermometer, altimeter and gyroscope. 
 The CS sub-team will then write software to allow these avionics systems to communicate with a ground station, interpret the data and finally display it in a meaningful way.
 Live telemetry will be input into a Kalman filter to account for inaccuracy in instrument data and sudden spikes, such as will occur in barometric altitude readings when a shockwave forms around the rocket when it exceeds Mach 1.  
 At a minimum this will include a real-time graphical display including a 3-Dimensional terrain model and representations of the position of both rocket stages and a readout of current altitude and other flight characteristics.
@@ -233,10 +404,12 @@ Additionally, Dr. Squires has expressed some interest in a system capable of pro
 If implemented, this would accompany a series of graphs plotting the rocket’s altitude, vertical and horizontal velocity, acceleration, barometric pressure and thrust achieved from the rocket motors.
 The position visualization system will likely take the form of a representation of both the ground and target planes onto which will be displayed a representation of the rocket stages and some representation of its flight path (possibly both a projection and a history).
 
+%-----------------------------------------------------------
+
 \section{Performance Metrics}
 
 The above proposed solution naturally implies several key performance metrics.
-The first (that is, earliest) will be the successful processing of existing data into a meaningful format that is of use to the ME team, especially with thrust data.
+The first (that is, earliest) task will be the successful processing of existing data into a meaningful format that is of use to the ME team, especially the thrust data.
 Second will be development of a temporary substitute protocol for the initial development of functions for receiving and interpreting telemetry data until the ECE team completes work and design of the final protocols can commence.
 The existing data from previous years will be useful in validating the progress made during this preliminary stage.
 Third will be the successful component level and integrated testing of the avionics software systems for telemetry and subsequent visualization. 
