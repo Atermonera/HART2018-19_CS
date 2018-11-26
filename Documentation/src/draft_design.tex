@@ -1,0 +1,409 @@
+%%\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\documentclass[journal,10pt,onecolumn,compsoc]{IEEEtran} 
+\usepackage[margin=1.0in]{geometry} 
+%%\geometry{textheight=9.5in, textwidth=7in}
+\usepackage{pdfpages}
+\usepackage{graphicx}
+%%\usepackage{caption,graphicx,float} 
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage[english]{babel}
+\usepackage{url}
+\usepackage{setspace}
+\setlength{\parskip}{\baselineskip} 
+\setlength\parindent{24pt}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{			HART CS Capstone}
+\def \CapstoneTeamNumber{		11}
+\def \GroupMemberOne{			Rick Menzel}
+\def \GroupMemberTwo{			Matthew Forsland}
+\def \CapstoneProjectName{		High Altitude Rocketry Project}
+\def \CapstoneSponsorCompany{		OSU American Institute of Aeronautics and Astronautics (AIAA)}
+\def \CapstoneSponsorPerson{		Dr. Nancy Squires}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{			%Problem Statement
+				%Requirements Document
+				%Technology Review
+				Design Document
+				%Progress Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+%\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+    	\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \CapstoneTeamName\par 
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                \NameSigPair{\GroupMemberTwo}\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract
+		This document is intended to outline the design and system architecture for the OSU High Altitude Rocketry team's Avionics Ground System.
+		It details the functionality of the final system as well as the design decisions made in the interest of providing this functionality.
+        	%This allows you to have sensible diffs when you use \LaTeX with version control, as well as giving a quick visual test to see if sentences are too short/long.
+        	%If you have questions, ``The Not So Short Guide to LaTeX'' is a great resource (\url{https://tobi.oetiker.ch/lshort/lshort.pdf})
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+% 8. now you write!
+\section{Introduction}
+
+\subsection{Scope}
+The Avionics Ground System described herein is intended to provide ground-level near real-time location and status information during launches of the OSU AIAA High Altitude Rocketry Team's rocket.
+The goal of providing this information is two-fold: firstly, to facilitate timely recovery of both rocket stages post-flight; secondly, to allow the ground team to monitor the flight, most notably the altitude.
+
+\subsection{Purpose}
+This Design Document serves as an overview of how the final Avionics Ground System shall be designed and implemented.
+To this end, this document will outline the various requirements of the final system, as well as detail the specific design and architecture designs made to fulfill these requirements.
+
+\subsection{Intended Audience}
+This document is intended for the several technical stakeholders in the 2018-2019 OSU AIAA High Altitude Rocketry team.
+It is to be used as a road-map for the HART CS capstone team (hereafter referred to as the "development team") during the coming implementation of the ultimate system.
+Finally, the Design Document is intended to serve as the document-of-reference for all stakeholders in the event of later conflict between the final system and its stated requirements.
+
+\subsection{Conformance}
+As written, this document conforms with the requirements and specifications requested by the project client and later enumerated by the development team as of November 24th, 2018.
+As of the time of this writing, both client and development team have agreed upon the scope of the intended system.
+Records to this effect are maintained by the development team.
+Further information regarding the agreed upon project requirements and specifications may be located in the Requirements Document.
+
+\subsection{Reference Material}
+
+\subsection{Definitions and Acronyms}
+\begin{itemize}
+	\item \textbf{AIAA:}
+		American Institute of Aeronautics and Astronautics.
+	\item \textbf{Avionics:}
+	
+	\item \textbf{Back-End:}
+	
+	\item \textbf{GPS:}
+		Global Positioning System.
+	\item \textbf{Ground Station:}
+	
+	\item \textbf{GUI:}
+		Graphical User Interface.
+	
+	\item \textbf{ECE:}
+		Electrical and Computer Engineering
+	\item \textbf{Front-End:}
+	
+	\item \textbf{HART:}
+		High Altitude Rocketry Team.
+	\item \textbf{ME:}
+		Mechanical Engineering	
+	\item \textbf{OSU:}
+		Oregon State University.
+	\item \textbf{USC:}
+		University of Southern California.
+\end{itemize}
+\newpage
+
+%-----------------------------------------------------------
+
+\section{System Overview}
+	\noindent The OSU chapter of the AIAA is seeking to break the current collegiate high-altitude record for a student-built rocket.
+	The current altitude record, set by a team from USC, is 144,000 feet.
+	This effort will build on projects from previous years (2016-2017, 2017-2018) and is part of a long-term effort to win the University Space Race, a challenge to launch a student-built rocket to an altitude of 100 kilometers.
+	To this end, HART will design and assemble a 2-stage solid-rocket motor, to be launched June 2019 at the Spaceport America Cup in New Mexico. 
+
+	\noindent Amateur high-powered rockets flying in excess of 5000 feet are no longer visible to the naked human eye. 
+	Depending on the weather, time of day, and location of the launch pad relative to the observer, the rocket may potentially be obscured by the sun or cloud cover, further complicating visual tracking efforts. 
+	As such, HART's rocket must broadcast telemetry containing, at a minimum, some measure of altitude and position.
+	This telemetry must then be received, interpreted and finally displayed to personnel on the ground.
+	Because HART is a multi-disciplinary effort, the overall avionics system is divided among two sub-teams.
+	ECE and ME sub-teams have responsibility for the broadcast of telemetry data, as well as the avionics hardware which will be integrated into the rocket.
+	Together these components make up the Avionics Flight System.
+	The CS sub-team is then responsible for receiving this telemetry, processing the data into a usable form, and displaying relevant information in an easily digestible manner.
+	To achieve this functionality, the CS portion of the system, the Avionics Ground System, will be further divided into a back-end and a front-end.
+  
+	%some stuff about the back-end
+
+	\noindent Once received data is processed by the front-end, it is passed to the front-end.
+	The front-end has two broad functions.
+	Firstly, it is the front-end which is responsible to displaying the position of both rocket stages during and immediately following flight.
+	This includes both near real-time positions and a persistent flight path derived from positions previously reported.
+	This location display is primarily intended as an aid to the ultimate recovery of the rocket stages post-flight, but also serves the ancillary goal of monitoring for any emergent in-flight conditions which effect the flight path of the rocket.
+	Secondly, the front-end is responsible for displaying a full range of received and derived telemetry data to users.
+	This data includes the rocket’s altitude, vertical and horizontal velocity, acceleration, barometric pressure and the thrust achieved from the rocket motors.
+	Both of these functions will be implemented via a web-based interface hosted off of the ground station and accessible to any team member with a web-enabled device via connection to the ground station's integrated router. 
+
+%-----------------------------------------------------------
+
+\section{System Architecture}
+	\noindent This section provides a conceptual model for the ultimate Avionics Ground System, and describes in detail the various components alongside their respective implementations.
+	It first establishes the Architectural Design by defining the relationship of each component with respect the the overall system.
+	After this, the Decomposition Description breaks down and describes the actual features intended to be present in the final solution.
+	Finally, the Design Rationale sub-section elucidates the general reasoning which influenced the above-described design.
+
+	\subsection{Architectural Design}
+
+		%\begin{figure}[H]
+		%\fbox{\includegraphics[width=\textwidth]{graphics/archFlow.eps}}
+		%\caption{Basic Architecture}
+		%\end{figure}
+
+		\noindent The application shall consist of a single web page (hereafter referred to as the "main page") which will allow users to monitor telemetry and location for both rocket stages in near real-time both during and immediately proceeding flight.
+		This page will feature two sections.
+		The first section is responsible for displaying the current location(s) and flight path of the rocket 3-dimensionally.
+		Users will be able to manipulate the 3-dimensional portion of the display to change the viewing angle.
+		The second section is responsible for displaying other telemetry including the rocket’s altitude, vertical and horizontal velocity, acceleration, barometric pressure and thrust.
+		This will be accomplished via a series of 2-dimensional gauges and numerical readouts as is most appropriate to the specific parameter being displayed.
+		Data will be displayed both during and immediately following flight.
+
+		%some stuff about the back-end and how it feeds data to the front-end
+
+	\subsection{Decomposition Description}
+		%break down each thing the system does
+
+		%overall system flow:
+		%{receive data} -> {process data} -> {write data}
+		%				  -> {broadcast data} -> {display data}
+
+	\subsection{Design Rationale}
+		\noindent The primary influence on the design of the Avionics Ground System is to present all information in a format which is easily and rapidly digestible.
+		This should allow users to quickly glance at the page and within seconds get a basic grasp on the status of the rocket.
+		Much of this rapid-assessment functionality will be provided by color-coding.
+		Importantly, for much of the telemetry data it is not as important that values remain constant as it is that they remain within a nominal range. 
+		By color-coding nominal value ranges to green, warning ranges to yellow, and danger ranges to red it should only take seconds for a user to determine whether the rocket is performing as expected or whether there is cause for concern.
+		Similarly, the use of appropriate colors for the location and trajectory display will allow for a more rapid assessment.
+		In both of these cases, a user will be able, if needed, to obtain more detailed information by conducting a closer examination of the readout, should such detail become necessary.
+
+		%something about the back-end, particularly the need for the Kalman filter
+\newpage
+
+%-----------------------------------------------------------
+
+\section{Avionics Ground System Perspective}
+
+	\subsection{Design Stakeholders and Concerns}
+		\noindent %some text
+
+	\subsection{Design Viewpoints}
+		\noindent This section describes several different viewpoints regarding the HART Avionics Ground System, namely context, interface, structure and interaction.
+
+		\subsubsection{Context Viewpoint}
+			\noindent A critical concern in the development of the overall avionics system is the varying disciplines of the intended users. 
+			Specifically, HART is a multidisciplinary team composed primarily of Mechanical Engineering students (and one Mechanical Engineering faculty member) with several supplemental sub-teams made up of Electrical and Computer Engineering students, a Chemical Engineering student, and two Computer Science students (the CS sub-team).
+			As such, the level of familiarity with software and programming can be expected to differ substantially between team stakeholders.
+			This consideration drives a need to produce software which is inherently simple to access, run and navigate, so as to avoid confusion or delay around the critical launch window. 
+
+		\subsubsection{Interface Viewpoint}
+			\noindent A key motivator for this project is to broaden the user interface beyond the ground station hardware.
+			As such, a web-based design for the visualization system has been chosen, as this will allow multiple team members to access telemetry data from personal devices such as laptops or cellphones rather than requiring them to crowd around a single screen.
+			This decision was further informed by the ground station hardware itself.
+			As the ground station is powered by a Raspberry Pi (with no GPU), there is a distinct possibility that many graphical applications would be difficult or impossible to run on that system.
+			Web-based approaches to visualization are, however, implemented directly by web browsers.
+			This both ensures that the visualization will run and offloads the processing responsibility to the client's browser rather than the host machine.  
+
+		\subsubsection{Structure Viewpoint}
+			\noindent The multidisciplinary composition of HART further dictates a desire for a certain degree of modularity in the Avionics Ground System design.
+			Specifically, the development team will need to begin software development prior to finalization of the Avionics Flight System (both software and hardware components) by the ECE and ME sub-teams.
+			As such, it is entirely possible that some planned aspect of the broadcast system could change during the development of the display system.
+			Modular design would minimize the impact of such changes by ensuring the number of effected components is kept to a minimum.
+			Furthermore, modularity in the display system should allow for increased efficiency, in particular by offloading the graphical-processing responsibility to client machines and thus freeing the ground station to work more on processing and storing data. 
+
+		\subsubsection{Interaction Viewpoint}
+			\noindent A further offshoot of the above-discussed modularity is the desire for relatively independent system components.
+			In other words, interaction between components should be kept to a minimum and performed only when necessary.
+			This helps both to ensure an orderly flow of information through the program and potentially to avoid negative interactions in the event of system malfunction.
+\newpage
+
+%-----------------------------------------------------------
+
+\section{Component Design}
+	This section offers a break down of each component in the Avionics Ground System.
+	Each component is explored in terms of the GUI Element (representation), the Structural Element (implementation), and Design Rationale.
+
+	\subsection{Acceleration}
+
+		\subsubsection{GUI Element}
+			The acceleration readout is actual composed of two different display elements: a vertical accelerometer and a horizontal accelerometer.
+			Each of these elements will take the form of a gauge that will display the current acceleration being experienced by the rocket.
+			
+		\subsubsection{Structural Element}
+			Each acceleration gauge will in turn have three colored zones.
+			In the center of the gauge will be a green zone indicating an acceptable degree of acceleration; a zero value will be located exactly in the middle.
+			Working from the inside out, next will be a yellow warning zone.
+			Finally, on the periphery there will be a red danger zone indicating a potentially hazardous degree of acceleration.
+			As the rocket does carry accelerometers, displaying acceleration data should require relatively little processing.
+
+		\subsubsection{Design Rationale}
+			These gauges allow both positive and negative readings, a reflection of the fact that the rocket can accelerate in either any direction with six degrees of freedom.
+			The color-coding is an important aspect intended to allow for rapid visual assessment of flight status.
+			The inclusion of an acceleration display provides critical information, most notably either excessively horizontal flight path (i.e. the rocket has become disoriented) or an uncontrolled descent (likely due to a parachute failure).
+
+	\subsection{Altitude}
+
+		\subsubsection{GUI Element}
+			The most logical way to display altitude is to use a numerical readout as this will allow users to quickly read the value (importantly this is the one parameter where actual value is the most important aspect).
+			The altitude readout should be prominent and easily visible on the display.
+			Additionally, the client has expressed interest in the inclusion of audible cues indicating certain altitudes have been reached, should time allow.
+
+		\subsubsection{Structural Element}
+			As the rocket does carry barometric altimeters, displaying altitude data should require relatively little processing below 100,000 feet.
+			After that point, commercially-available altimeters are no longer reliable, necessitating the derivation of altitude using other information.
+			As the altitude readout is numerical, the most critical consideration is that it is properly sized to be easily readable.
+			The inclusion of a color change upon reaching certain altitude thresholds can, however, make this even easier.
+			
+		\subsubsection{Design Rationale}
+			As the overall goal of this project is to launch a student-built rocket to a minimum altitude, the display of altitude is critical to determining success.
+
+	\subsection{Barometric Pressure}
+
+		\subsubsection{GUI Element}
+			The barometric pressure display consists of a gauge-type display element.
+					
+		\subsubsection{Structural Element}
+			In the center of the gauge will be a green zone indicating an acceptable level of pressure; a sea-level value will be located exactly in the middle.
+			Working from the inside out, next will be a yellow warning zone.
+			Finally, on the periphery there will be a red danger zone indicating a potentially hazardous amount of pressure.
+			As the rocket does carry barometric altimeters, barometric pressure data should require relatively little processing below 100,000 feet.
+			After that point, commercially-available barometric altimeters are no longer reliable as the air is simply too thin for an accurate reading.
+			Additionally, the pressure changes associated with passing certain speed thresholds (such as exceeding the sound barrier) necessitate the use of a Kalman filter to avoid anomalous readouts.
+			The Kalman filter avoids this by using a rolling system of weighted averages to reduce the effect of momentary spikes or drops in reported values.
+			
+		\subsubsection{Design Rationale}
+			This gauge allows both positive and negative readings relative to sea level, a reflection of the fact that the rocket will experience decreasing pressure as it ascends and could potentially (however unlikely) experience higher pressure in the event of a hypothetical water landing.
+			The color-coding is an important aspect intended to allow for rapid visual assessment of flight status.
+			That being said, however, the rocket is unlikely to experience a level of pressure which would actually be harmful given the launch location.
+			The warning and danger zones on the gauge should thus be minimized and located far out on the periphery of the readout.
+
+	\subsection{Thrust}
+
+		\subsubsection{GUI Element}
+			The thrust display consists of a single gauge-type display element.
+
+		\subsubsection{Structural Element}
+			On the left of each gauge will be a green zone indicating an acceptable degree of thrust, with zero being located on the far left side.
+			Next will be a yellow warning zone.
+			Finally, on the far right there will be a red danger zone indicating a potentially hazardous degree of thrust.
+			Thrust will have to be derived from other values including acceleration due to the lack of instruments on the rocket.
+
+		\subsubsection{Design Rationale}
+			The color-coding is an important aspect intended to allow for rapid visual assessment of flight status.
+			While this gauge could potentially use a dual-sided layout similar to acceleration, it would be difficult or impossible to set thresholds as the thrust will necessarily vary throughout the flight.
+			Instead of indicating  low levels via their own yellow/red regions, users can determine insufficient thrust via sudden drops in thrust or a lack of thrust during expected times.
+			The inclusion of a thrust display provides critical information, as both excessive and insufficient thrust indicate potentially unsafe conditions at various points in the flight.
+			Furthermore, the current thrust level is an important indication relating to second-stage ignition.
+			
+	\subsection{Velocity}
+
+		\subsubsection{GUI Element}
+			The velocity display consists of a pair of gauges: one for vertical velocity and one for horizontal velocity.
+			
+		\subsubsection{Structural Element}
+			In the center of each gauge will be a green zone indicating an acceptable velocity; zero will be located exactly in the middle.
+			Working from the inside out, next will be a yellow warning zone.
+			Finally, on the periphery there will be a red danger zone indicating a potentially hazardous velocity.
+			Velocity will have to be derived from other values including coordinates and acceleration due to the lack of speedometers on the rocket.
+			
+		\subsubsection{Design Rationale}
+			These gauges allow both positive and negative readings, a reflection of the fact that the rocket can and will move in both positive and negative directions with six degrees of freedom.
+			The color-coding is an important aspect intended to allow for rapid visual assessment of flight status, particularly during the recovery stage (as excessive velocity during recovery indicates a likely parachute failure).
+
+	\subsection{Flight Path and Location}
+
+		\subsubsection{GUI Element}
+			The display of the rocket's flight path and location will actually be composed of two disparate elements.
+			The most prominent of these will be a 3-dimensional representation of the launch area and target altitude planes, onto which will be projected representations of both rocket stages and their respective trajectories.
+			The ground plane will use an image of the launch area as a texture, whereas the target planes will use a colored grid system.
+			The target altitude of 150,000 feet will be green and the previous OSU record of 80,000 feet will be yellow.
+			The second display element will take the form of a simple text readout of each stage's current GPS coordinates.
+			Also worth noting is the fact that the 3-dimensional component of the display will allow the user to manipulate the eye position as needed.
+			
+		\subsubsection{Structural Element}
+			Each rocket stage will carry a commercial GPS unit on-board, so for at least part of the flight the display of this information will be relatively straight-forward.
+			Above certain altitudes and velocities, however, commercial GPS units are designed to shut off, a measure intended to prevent use on foreign ballistic missiles or rocket munitions.
+			This means that for a portion of the flight, the location will need to be derived using other available data.
+			For the trajectory history, a Bezier derivation or similar method will be used to produce a smooth curve given the reported position points.
+			An important consideration for the 3-dimensional display is that the traditional x-y-z representation of GPS coordinates (where the ground is the x-y plane) differs from the representation in WebGL (where the ground is the x-z plane).
+			This will necessitate a value swap at some point.
+
+		\subsubsection{Design Rationale}
+			The purpose of the flight path and location display is two-fold.
+			Firstly, it serves as a tracking system while the rocket is in flight, and during this phase is a supplementary means of verifying rocket altitude.
+			This informs the choice to include target altitude planes on the 3-dimensional display.
+			The ability of the user to manipulate the eye position of the 3-dimensional display is included in recognition of the fact that the rocket could potentially move in such a way that a strictly-static view would inhibit effective observation.
+			Secondly, this display is crucial during the recovery stage following flight.
+			The inclusion of both simple GPS coordinates and a projection of location onto a map are both intended to facilitate the rapid location and recovery of both rocket stages.
+
+	\subsection{Data Storage}
+
+		\subsubsection{GUI Element}
+			The data storage function will not be reflected on the main display page, as it should be occurring in the background and takes place entirely on the ground station itself.
+			That being said, there should be a logging function on the base station which can be accessed from that hardware if needed.
+
+		\subsubsection{Structural Element}
+			In accordance with the modular design of the system, the storage of data should be isolated from the display components.
+			As both storage and display components will be working with the same information, they can both be passed duplicates of the processed telemetry, allow both components to operate simultaneously.
+			In order to achieve a maximum degree of readability for future teams, the JSON data format (with paired name-value data) has been chosen for data storage.
+
+		\subsubsection{Design Rationale}
+			Whereas the above functions serve an immediate purpose during and immediately proceeding the rocket's flight, the storage of data is intended for later review, either by future HART members or in the event of a catastrophic failure.
+			As the above functions will be displaying all of the information which would be stored, the further inclusion of a display element to the storage function would be entirely redundant and serve only to distract users.
+			As discussed earlier, however, the one exception to this would be the verbose logging of data storage on the ground station itself, if only as a means to ensure expected functionality.
+
+	%back-end stuff goes here??
+	
+	
+\newpage
+
+%-----------------------------------------------------------
+
+\section{User Interface Design}
+
+	\subsection{Overview}
+		The overall goal of the Avionics Ground System User Interface is to make monitoring rocket status as simple as possible.
+		To that effect, all a user should need to do to access the system is connect to the ground station's wireless router and navigate to a specified URL.
+		All of the above-discussed information should then be displayed on a single page so that users can easily evaluate any and all telemetry data with a single glance and without the need for scrolling or other navigation.
+		User interaction will in fact be kept to a relative minimum: with the exception of the 3-dimensional location and trajectory display, the user should have no need to interact with any of the display elements beyond simple observation.
+	
+	\subsection{Images}
+		To be determined.
+		
+	\subsection{Screen Object and Actions}
+		To be determined.
+		
+\end{document}
