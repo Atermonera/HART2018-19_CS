@@ -105,7 +105,7 @@
 		Finally, the Design Document is intended to serve as the document-of-reference for all stakeholders in the event of later conflict between the final system and its stated requirements.
 
 	\subsection{Conformance}
-		\noindent As written, this document conforms with the requirements and specifications requested by the project client and later enumerated by the development team as of November 24th, 2018.
+		\noindent As written, this document conforms to the requirements and specifications requested by the project client and later enumerated by the development team as of November 24th, 2018.
 		As of the time of this writing, both client and development team have agreed upon the scope of the intended system.
 		Records to this effect are maintained by the development team.
 		Further information regarding the agreed upon project requirements and specifications may be located in the Requirements Document.
@@ -208,9 +208,9 @@
 	Raw telemetry data and processed data from the model will be output to files for long-term storage, further analysis, and use by future HART teams.
 	
 	%Frontend overview
-	\noindent Once data is processed by the front-end, it is passed to the front-end.
+	\noindent Once data is processed by the back-end, it is passed to the front-end.
 	The front-end has two broad functions.
-	Firstly, it is the front-end which is responsible to displaying the position of both rocket stages during and immediately following flight.
+	Firstly, it is the front-end which is responsible for displaying the position of both rocket stages during and immediately following flight.
 	This includes both near real-time positions and a persistent flight path derived from previously reported positions.
 	This location display is primarily intended as an aid to the ultimate recovery of the rocket stages post-flight, but also serves the ancillary goal of monitoring for any emergent in-flight conditions which affect the flight path of the rocket.
 	Secondly, the front-end is responsible for displaying a full range of received and derived telemetry data to users.
@@ -241,16 +241,21 @@
 		This will be accomplished via a series of 2-dimensional gauges and numerical readouts as is most appropriate to the specific parameter being displayed.
 		Data will be displayed both during and immediately following flight.
 
-		%some stuff about the back-end and how it feeds data to the front-end
-		\noindent The back-end shall consist of a system responsible for receiving the telemetry of both stages and two systems for modeling the state of each rocket stage.
-
+		\noindent The back-end shall consist of a system responsible for receiving the telemetry of both stages, two systems for modeling the state of each rocket stage, and one system responsible for passing processed data to the front-end.
+		The data reception system will receive raw telemetry data directly from the antenna and parse it into the different variables contained within.
+		Once parsed, the system will store those variables to a file, and write them to a pipe connected to the data processing systems.
+		The data processing subsystems will derive velocity from the incoming data, and use it together with the raw data to update an internal model designed to remove experimental noise.
+		The data processing subsystem will also use the model to estimate the thrust produced by the motor between each transmission.
+		The outputs of the model and the thrust will also be written to a file, and to a pipe connected to the data delivery system.
+		The data delivery system will retrieve live data from the data processing system during flight, or read old flight data from a file, and send it to the front-end.
 		
 	\subsection{Decomposition Description}
-		%break down each thing the system does
-
-		%overall system flow:
-		%{receive data} -> {process data} -> {write data}
-		%				  -> {broadcast data} -> {display data}
+		\noindent Data will flow into the data reception subsystem from the antenna receiving telemetry transmissions from the rocket stages.
+		The raw telemetry will be stored to a file and sent to the data processing subsystem.
+		The data processing subsystem will refine the raw telemetry into single measurements, eliminate experimental noise, and derive additional variables not directly measured.
+		The data processing subsystem will store all refined and derived variables to a log file, and send them to the data delivery system.
+		The data delivery subsystem will send refined data from a live flight to the front-end by receiving data from the data processing subsystem.
+		The data delivery subsystem will send refined data from a previous flight to the front-end by reading it from a file.
 
 	\subsection{Design Rationale}
 		\noindent The primary influence on the design of the Avionics Ground System is to present all information in a format which is easily and rapidly digestible.
@@ -261,7 +266,12 @@
 		Similarly, the use of appropriate colors for the location and trajectory display will allow for a more rapid assessment.
 		In both of these cases, a user will be able, if needed, to obtain more detailed information by conducting a closer examination of the readout, should such detail become necessary.
 
-		%something about the back-end, particularly the need for the Kalman filter
+		\noindent In the course of a flight, the rocket stages will rotate rapidly, vibrate, and shake violently as the fins  spin-stabilize the rocket, the motors create accoustic vibrations that propagate through the entire rocket, and the stages fall under parachute.
+		Furthermore, some measurements become unreliable when certain conditions are met, such as the barometer reading a spike in pressure as a shockwave forms around the rocket when it passes Mach 1.
+		All of these tendencies and events will generate a significant amount of experimental noise in the raw telemetry.
+		In order to present more digestible data, it is imperative that an algorithm be used to reduce this noise.
+		As such, the data processing subsystem will employ a Kalman filter to model the rocket stages' statuses and mitigate experimental noise according to statistical analysis.
+		
 \newpage
 
 %-----------------------------------------------------------
@@ -314,7 +324,7 @@
 	This section will explain the subsystems of the back-end ground station system.
 	Each subsystem will be broken up into multiple components.
 	Each component will be explained in two levels.
-	These levels are Algorithm, Physical Implementation (only in the Telemetry sub-section) and Design Rationale.
+	These levels are Algorithm, Physical Implementation (only in the Telemetry sub-section), and Design Rationale.
 
 	\subsection{Telemetry}
 		\noindent This section will explain the design of the back-end subsystem responsible for the reception and storage of raw telemetry data from the rocket.
@@ -449,6 +459,45 @@
 
 				\noindent GPS data is a far more reliable measurement of position than barometric altitude.
 				However, COCOM restrictions cause the GPS to disable itself when the rocket exceeds 1688 feet per second velocity and 59,055 feet in altitude.
+		
+		\subsubsection{Thrust Derivation}
+			\noindent The raw telemetry provides multiple means of deriving velocity.
+			However, acceleration is the only available measurement that gives any indication of rocket motor performance.
+			Due to the fluctuating mass flow rate and exhaust pressure, determining the exact force provided by the motor is significantly more challenging.
+			
+			\paragraph{Algorithm}
+				\noindent Calculating the Reynolds coefficient of the rocket's stages during the design phase will allow for more accurate drag calculations during flight.
+				These can be used to compute the approximate the acceleration provided by each rocket motor.
+				By measuring the mass flow rate and exhaust pressure during static test fires, we can fine tune simulations to produce expected thrust curves.
+				These thrust curves can be input into the data processing subsystem's internal model to approximate the thrust output by the motor in flight.
+			
+			\paragraph{Design Rationale}
+				\noindent Because the rocket motors are the only means by which the rocket can achieve its target altitude, analyzing their performance becomes important in troubleshooting the possible causes for unexpected behaviour, such as motor chuffs or burn instabilitiers.
+				Being able to identify such causes from the telemetry data is the only possible means of doing so when the events occur beyond the limits of the human eye, as patterns in the exhaust trail such as a fading during a motor chuff aren't directly observable.
+				This feature is not mission-critical to the success of the rocket, but it is useful for analyzing failure cases.
+				
+		\subsubsection{Kalman Filter}
+			\noindent Over the course of a flight, changing conditions will make the various instruments more or less precise, or interfere with their ability to collect data altogether.
+			The barometric altitude becomes unreliable in excess of 100,000 feet above ground level, and altogether useless when the rocket passes Mach 1 due to the formation of a shockwave around the rocket.
+			The GPS becomes unavailable over a set velocity and altitude due to Cold-War era restrictions barring the use of GPS to guide ballistic missiles.
+			It is also possible for vibrations from the rocket motor to interfere with the clock the GPS uses to keep time, ruining all subsequent measurements.
+			Additionally, the rocket is spin-stabilized, so accelerometer readings will be on constantly-shifting axes during the ascent, and require rectification to provide useful measurements of the overall acceleration of the rocket.
+			Because of these limitations, it is imperative that we implement a data processing algorithm capable of mitigating these sources of experimental noise to produce a set of variables that are accessible to human beings.
+			To this end, we shall implement a Kalman filter in the data processing subsystem.
+			Kalman filters maintain an internal model of the environment, and uses the uncertainty of each measurement to generate a weighted average of multiple measurements through statistical analysis.
+			
+			\paragraph{Algorithm}
+				\noindent The Kalman filter is implemented in multiple distinct steps.
+				It takes a known prior state of the variables, and predicts their next state based upon a model.
+				It then compares the predictions for the new state to the actual measurements of the state, and estimates the real values based on the joint probability distribution of the variables over the timestep.
+				These estimates then form the known state for the next timestep.
+				
+			\paragraph{Design Rationale}
+				\noindent Kalman filters are used heavily by the aerospace industry, as it can easily run in real time, and often produces much more accurate measurements of the variables than can be made by a single instrument.
+				The filter is also able to run in real-time, requiring few expensive predictions for the measurements used in aerospace, which is extremely important for a rocket flying at several times the speed of sound.
+				The filter also effectively combines multiple measurements of the same variable according to their actual reliability, rather than blindly averaging one very accurate variable with another that's drifted further and further from the mark over time.
+				When it is available, the GPS will provide very accurate measurements of position to within a few meters, while the accelerometer can measure the movement of the rocket stage within that space.
+				
 		\setlength\parindent{24pt}
 %-----------------------------------------------------------				
 
