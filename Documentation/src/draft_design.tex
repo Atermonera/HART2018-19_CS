@@ -10,7 +10,7 @@
 \usepackage[english]{babel}
 \usepackage{url}
 \usepackage{setspace}
-\setlength{\parskip}{\baselineskip} 
+%\setlength{\parskip}{\baselineskip} 
 \setlength\parindent{24pt}
 
 % 1. Fill in these details
@@ -72,7 +72,8 @@
         \begin{abstract}
         % 6. Fill in your abstract
 		This document is intended to outline the design and system architecture for the OSU High Altitude Rocketry team's Avionics Ground System.
-		It details the functionality of the final system as well as the design decisions made in the interest of providing this functionality.
+		It begins with a system overview, followed by a discussion of the design viewpoints which influenced the system.
+		It then details the functionality of the final system as well as the design decisions made in the interest of providing this functionality, including a breakdown and explanation of each system component.
         	%This allows you to have sensible diffs when you use \LaTeX with version control, as well as giving a quick visual test to see if sentences are too short/long.
         	%If you have questions, ``The Not So Short Guide to LaTeX'' is a great resource (\url{https://tobi.oetiker.ch/lshort/lshort.pdf})
         \end{abstract}     
@@ -86,89 +87,137 @@
 %\listoftables
 \clearpage
 
+\setlength{\parskip}{\baselineskip} 
 % 8. now you write!
 \section{Introduction}
 
-\subsection{Scope}
-The Avionics Ground System described herein is intended to provide ground-level near real-time location and status information during launches of the OSU AIAA High Altitude Rocketry Team's rocket.
-The goal of providing this information is two-fold: firstly, to facilitate timely recovery of both rocket stages post-flight; secondly, to allow the ground team to monitor the flight, most notably the altitude.
+	\subsection{Scope}
+		\noindent The Avionics Ground System described herein is intended to provide ground-level near real-time location and status information during launches of the OSU AIAA High Altitude Rocketry Team's rocket.
+		The goal of providing this information is two-fold: firstly, to facilitate timely recovery of both rocket stages post-flight; secondly, to allow the ground team to monitor the flight, most notably the altitude.
 
-\subsection{Purpose}
-This Design Document serves as an overview of how the final Avionics Ground System shall be designed and implemented.
-To this end, this document will outline the various requirements of the final system, as well as detail the specific design and architecture designs made to fulfill these requirements.
+	\subsection{Purpose}
+		\noindent This Design Document serves as an overview of how the final Avionics Ground System shall be designed and implemented.
+		To this end, this document will outline the various requirements of the final system, as well as detail the specific design and architecture designs made to fulfill these requirements.
 
-\subsection{Intended Audience}
-This document is intended for the several technical stakeholders in the 2018-2019 OSU AIAA High Altitude Rocketry team.
-It is to be used as a road-map for the HART CS capstone team (hereafter referred to as the "development team") during the coming implementation of the ultimate system.
-Finally, the Design Document is intended to serve as the document-of-reference for all stakeholders in the event of later conflict between the final system and its stated requirements.
+	\subsection{Intended Audience}
+		\noindent This document is intended for the several technical stakeholders in the 2018-2019 OSU AIAA High Altitude Rocketry team.
+		It is to be used as a road-map for the HART CS capstone team (hereafter referred to as the "development team") during the coming implementation of the ultimate system.
+		Finally, the Design Document is intended to serve as the document-of-reference for all stakeholders in the event of later conflict between the final system and its stated requirements.
 
-\subsection{Conformance}
-As written, this document conforms with the requirements and specifications requested by the project client and later enumerated by the development team as of November 24th, 2018.
-As of the time of this writing, both client and development team have agreed upon the scope of the intended system.
-Records to this effect are maintained by the development team.
-Further information regarding the agreed upon project requirements and specifications may be located in the Requirements Document.
+	\subsection{Conformance}
+		\noindent As written, this document conforms with the requirements and specifications requested by the project client and later enumerated by the development team as of November 24th, 2018.
+		As of the time of this writing, both client and development team have agreed upon the scope of the intended system.
+		Records to this effect are maintained by the development team.
+		Further information regarding the agreed upon project requirements and specifications may be located in the Requirements Document.
 
-\subsection{Reference Material}
+	\subsection{Reference Material}
+		[1]"COCOM - COCOM GPS Tracking Limits | Coordinating Committee for Multilateral Export Controls", Ravtrack, English, 2018. [Online]. Available:http://ravtrack.com/GPStracking/cocom-gps-tracking-limits/469/. [Accessed: 25- Nov- 2018].
 
-\subsection{Definitions and Acronyms}
-\begin{itemize}
-	\item \textbf{AIAA:}
-		American Institute of Aeronautics and Astronautics.
-	\item \textbf{Avionics:}
+	\subsection{Definitions and Acronyms}
+	\begin{itemize}
+		\item \textbf{AIAA:}
+			American Institute of Aeronautics and Astronautics.
+		
+		\item \textbf{Avionics:}
+			A term for electronics employed in the specific context of aviation or aerospace.
+		
+		\item \textbf{Back-End:}
+			The non-user-facing components of the Avionics Ground System.
+		
+		\item \textbf{COCOM:}
+			An abbreviation for "Coordinating Committee for Multilateral Export Controls."
+			It ceased to function in 1994, but has a legacy of GPS restrictions preventing GPS-guided ballistic missiles.
+			These restrictions will affect the telemetry available for a period of the rocket's flight when it exceeds 515 meters per second and 18 kilometers altitude above ground level.
+		
+		\item \textbf{GPS:}
+			Global Positioning System.
+		
+		\item \textbf{Ground Station:}
+			The ground based receiver and broadcast system used by HART. 
+			Based on a Raspberry Pi, the ground station receives telemetry from the rocket, processes it, and then broadcasts it over wi-fi for view.
+		
+		\item \textbf{GUI:}
+			Graphical User Interface.
+		
+		\item \textbf{ECE:}
+			Electrical and Computer Engineering
+		
+		\item \textbf{Front-End:}
+			The user-facing components of the Avionics Ground System.
+		
+		\item \textbf{HART:}
+			High Altitude Rocketry Team.
+		
+		\item \textbf{ME:}
+			Mechanical Engineering	
+		
+		\item \textbf{OSU:}
+			Oregon State University.
+		
+		\item \textbf{USC:}
+			University of Southern California.
 	
-	\item \textbf{Back-End:}
-	
-	\item \textbf{GPS:}
-		Global Positioning System.
-	\item \textbf{Ground Station:}
-	
-	\item \textbf{GUI:}
-		Graphical User Interface.
-	
-	\item \textbf{ECE:}
-		Electrical and Computer Engineering
-	\item \textbf{Front-End:}
-	
-	\item \textbf{HART:}
-		High Altitude Rocketry Team.
-	\item \textbf{ME:}
-		Mechanical Engineering	
-	\item \textbf{OSU:}
-		Oregon State University.
-	\item \textbf{USC:}
-		University of Southern California.
-\end{itemize}
+	\end{itemize}
+
 \newpage
 
 %-----------------------------------------------------------
 
 \section{System Overview}
-	\noindent The OSU chapter of the AIAA is seeking to break the current collegiate high-altitude record for a student-built rocket.
-	The current altitude record, set by a team from USC, is 144,000 feet.
-	This effort will build on projects from previous years (2016-2017, 2017-2018) and is part of a long-term effort to win the University Space Race, a challenge to launch a student-built rocket to an altitude of 100 kilometers.
-	To this end, HART will design and assemble a 2-stage solid-rocket motor, to be launched June 2019 at the Spaceport America Cup in New Mexico. 
+	%\noindent The OSU chapter of the AIAA is seeking to break the current collegiate high-altitude record for a student-built rocket.
+	%The current altitude record, set by a team from USC, is 144,000 feet.
+	%This effort will build on projects from previous years (2016-2017, 2017-2018) and is part of a long-term effort to win the University Space Race, a challenge to launch a student-built rocket to an altitude of 100 kilometers.
+	%To this end, HART will design and assemble a 2-stage solid-rocket motor, to be launched June 2019 at the Spaceport America Cup in New Mexico. 
 
-	\noindent Amateur high-powered rockets flying in excess of 5000 feet are no longer visible to the naked human eye. 
-	Depending on the weather, time of day, and location of the launch pad relative to the observer, the rocket may potentially be obscured by the sun or cloud cover, further complicating visual tracking efforts. 
-	As such, HART's rocket must broadcast telemetry containing, at a minimum, some measure of altitude and position.
-	This telemetry must then be received, interpreted and finally displayed to personnel on the ground.
-	Because HART is a multi-disciplinary effort, the overall avionics system is divided among two sub-teams.
-	ECE and ME sub-teams have responsibility for the broadcast of telemetry data, as well as the avionics hardware which will be integrated into the rocket.
-	Together these components make up the Avionics Flight System.
-	The CS sub-team is then responsible for receiving this telemetry, processing the data into a usable form, and displaying relevant information in an easily digestible manner.
-	To achieve this functionality, the CS portion of the system, the Avionics Ground System, will be further divided into a back-end and a front-end.
+	%\noindent Amateur high-powered rockets flying in excess of 5000 feet are no longer visible to the naked human eye. 
+	%Depending on the weather, time of day, and location of the launch pad relative to the observer, the rocket may potentially be obscured by the sun or cloud cover, further complicating visual tracking efforts. 
+	%As such, HART's rocket must broadcast telemetry containing, at a minimum, some measure of altitude and position.
+	%This telemetry must then be received, interpreted and finally displayed to personnel on the ground.
+	%Because HART is a multi-disciplinary effort, the overall avionics system is divided among two sub-teams.
+	%ECE and ME sub-teams have responsibility for the broadcast of telemetry data, as well as the avionics hardware which will be integrated into the rocket.
+	%Together these components make up the Avionics Flight System.
+	%The CS sub-team is then responsible for receiving this telemetry, processing the data into a usable form, and displaying relevant information in an easily digestible manner.
+	%To achieve this functionality, the CS portion of the system, the Avionics Ground System, will be further divided into a back-end and a front-end.
   
 	%some stuff about the back-end
 
-	\noindent Once received data is processed by the front-end, it is passed to the front-end.
+	%\noindent Once received data is processed by the front-end, it is passed to the front-end.
+	%The front-end has two broad functions.
+	%Firstly, it is the front-end which is responsible to displaying the position of both rocket stages during and immediately following flight.
+	%This includes both near real-time positions and a persistent flight path derived from positions previously reported.
+	%This location display is primarily intended as an aid to the ultimate recovery of the rocket stages post-flight, but also serves the ancillary goal of monitoring for any emergent in-flight conditions which effect the flight path of the rocket.
+	%Secondly, the front-end is responsible for displaying a full range of received and derived telemetry data to users.
+	%This data includes the rocket’s altitude, vertical and horizontal velocity, acceleration, barometric pressure and the thrust achieved from the rocket motors.
+	%Both of these functions will be implemented via a web-based interface hosted off of the ground station and accessible to any team member with a web-enabled device via connection to the ground station's integrated router. 
+
+	% Problem statement
+	\noindent Amateur high-powered rockets flying in excess of 5000 feet are no longer visible to the naked human eye. 
+	Depending on the weather, time of day, and location of the launch pad relative to the observer, the rocket may potentially be obscured by the sun or cloud cover, further complicating visual tracking efforts. 
+	As such, HART's rocket must broadcast telemetry containing, at a minimum, some measure of altitude and position.
+	This telemetry must then be received, interpreted and finally displayed by the ground station system to personnel on the ground.
+	Because HART is a multi-disciplinary effort, the avionics and ground station systems are divided among two sub-teams.
+	The ECE sub-team is responsible for the broadcast of telemetry data, as well as the design and manufacture of the avionics hardware which will be integrated into the rocket.
+	The CS sub-team is responsible for receiving this telemetry, processing the data into a usable form, and displaying relevant information in an easily digestible manner.
+	To achieve this functionality, the CS portion of the ground station system will be further divided into a back-end and a front-end.
+	
+	% Backend overview
+	\noindent The back-end subsystem will receive raw telemetry data from the rocket via an omni-directional radio antenna.
+	Received telemetry will contain measurements of temperature, barometric altitude, accelerometer, gyroscopic orientation, and GPS position when available.
+	These measurements will be used to update an internal model of the positions of both rocket stages.
+	The internal model will reduce noise in the telemetry data and allow for interpolation of rocket velocity and thrust achieved by the rocket motors.
+	Raw telemetry data and processed data from the model will be output to files for long-term storage, further analysis, and use by future HART teams.
+	
+	%Frontend overview
+	\noindent Once data is processed by the front-end, it is passed to the front-end.
 	The front-end has two broad functions.
 	Firstly, it is the front-end which is responsible to displaying the position of both rocket stages during and immediately following flight.
-	This includes both near real-time positions and a persistent flight path derived from positions previously reported.
-	This location display is primarily intended as an aid to the ultimate recovery of the rocket stages post-flight, but also serves the ancillary goal of monitoring for any emergent in-flight conditions which effect the flight path of the rocket.
+	This includes both near real-time positions and a persistent flight path derived from previously reported positions.
+	This location display is primarily intended as an aid to the ultimate recovery of the rocket stages post-flight, but also serves the ancillary goal of monitoring for any emergent in-flight conditions which affect the flight path of the rocket.
 	Secondly, the front-end is responsible for displaying a full range of received and derived telemetry data to users.
 	This data includes the rocket’s altitude, vertical and horizontal velocity, acceleration, barometric pressure and the thrust achieved from the rocket motors.
 	Both of these functions will be implemented via a web-based interface hosted off of the ground station and accessible to any team member with a web-enabled device via connection to the ground station's integrated router. 
 
+	
 %-----------------------------------------------------------
 
 \section{System Architecture}
@@ -193,7 +242,9 @@ Further information regarding the agreed upon project requirements and specifica
 		Data will be displayed both during and immediately following flight.
 
 		%some stuff about the back-end and how it feeds data to the front-end
+		\noindent The back-end shall consist of a system responsible for receiving the telemetry of both stages and two systems for modeling the state of each rocket stage.
 
+		
 	\subsection{Decomposition Description}
 		%break down each thing the system does
 
@@ -216,9 +267,15 @@ Further information regarding the agreed upon project requirements and specifica
 %-----------------------------------------------------------
 
 \section{Avionics Ground System Perspective}
-
 	\subsection{Design Stakeholders and Concerns}
-		\noindent %some text
+		\noindent From the perspective of the development team, it is desirable to produce a system which is modular in nature.
+		With the key considerations that other portions of both the overall Avionics System and the airframe are subject to change throughout our development timeline, this modularity will lend itself to the flexibility and maintainability of the system.
+		Furthermore, a modular system has the potential to allow for the addition of optional features should time allow.
+		Lastly, it is critical that the system be designed with the constraints of the available hardware foremost in the mind, both in terms of processing power (which is limited) and supported APIs (also likely limited).
+		
+		\noindent The development team, is however, only a small part of HART.
+		Because of the diverse makeup of the rest of the team and the highly time sensitive nature of the final launch attempt, it is important for the final system to be simple to operate and understand.
+		This element of understanding is further significant due to the amount of information being communicated: the final design should be one which lends itself to easy and rapid assessment.
 
 	\subsection{Design Viewpoints}
 		\noindent This section describes several different viewpoints regarding the HART Avionics Ground System, namely context, interface, structure and interaction.
@@ -250,10 +307,153 @@ Further information regarding the agreed upon project requirements and specifica
 			This helps both to ensure an orderly flow of information through the program and potentially to avoid negative interactions in the event of system malfunction.
 \newpage
 
+
 %-----------------------------------------------------------
 
-\section{Component Design}
-	This section offers a break down of each component in the Avionics Ground System.
+\section{Back-End Component Design}
+	This section will explain the subsystems of the back-end ground station system.
+	Each subsystem will be broken up into multiple components.
+	Each component will be explained in two levels.
+	These levels are Algorithm, Physical Implementation (only in the Telemetry sub-section) and Design Rationale.
+
+	\subsection{Telemetry}
+		\noindent This section will explain the design of the back-end subsystem responsible for the reception and storage of raw telemetry data from the rocket.
+		
+		\noindent Capturing accurate and reliable in-flight telemetry data is perhaps the most important problem in this project for several reasons. 
+		Firstly, given that this effort is fundamentally a competition, both in terms of this year's attempt to best the current altitude record and the ultimate goal of winning the University Space Race, the ability to accurately monitor and record the altitude reached by our rocket is absolutely mission critical. 
+		Secondly, after speaking to Dr. Squires, HART's faculty sponsor, it appears that last year's team was less than successful in capturing telemetry, a shortcoming which threatened the progress made by that team (as incomplete/inaccurate data is of questionable use). 
+		As the ultimate goal of this project is to achieve a minimum altitude of 144,000 feet and the rocket is, of course, unmanned, capturing telemetry is the only way we will be able to determine success or failure.
+		
+		\noindent This section will additionally describe the physical hardware necessary for the component to function, where applicable.
+		\setlength\parindent{0pt}
+		\subsubsection{Data Reception}
+		%\setlength\parindent{0pt}
+
+			\paragraph{Algorithm}
+				\noindent The telemetry data will be received via a socket from the external antenna.
+				Once a packet is received, it will be decomposed into the various pieces of data contained within.
+				When the rocket experiences specific events, such as stage separation, engine ignition, or parachute deployment, special packets will be broadcast signaling these events.
+				When the rocket exceeds COCOM restrictions, GPS data will no longer be present in packets, and the structure of the packet will change accordingly.
+
+				\noindent Once a packet has been decomposed into the set of data variables contained within, the variables will be reformatted into a JSON string and stored to a Flash drive.
+				The variables will also be written to a pipe connecting the data reception subsystem to the data processing subsystem.
+				The component must be fast enough that it is able to receive and store a packet of data faster than the rocket stages are able to transmit it.
+
+			\paragraph{Physical Implementation}
+				\noindent Telemetry data will be received by an omni-directional radio antenna designed and manufactured by the ECE sub-team.
+				The antenna will connect to the ground station via USB cable, and will format the data as a packet addressed to the port the data reception subsystem is listening to on the ground station.
+
+			\paragraph{Design Rationale}
+				\noindent Stable reception of telemetry is vital to the accurate tracking of the rocketry stages.
+				Using a directional antenna, while cheaper and easier to design, requires manually pointing the antenna at the suspected location of the rocket.
+				Because the rocket will exceed the range within which it is visible to the human eye within the first seconds of flight, accurately tracking its position in such a manner is extremely unreliable.
+				Using an omni-directional antenna requires a more powerful antenna overall, but does not require manual pointing, and needs to simply be held high enough to be clear to ground-based obstructions like shrubs, tents, and hills.
+				Reformatting the incoming telemetry to be properly received by the listening port on the ground station will require some care when generating telemetry packets on the avionics system, but should not prove to be too much of an obstacle to the development of the telemetry transmission system.
+
+		%\setlength\parindent{24pt}
+		\subsubsection{Data Storage}
+			\noindent Storing the received and processed telemetry data is not strictly necessary for the visualization system, but does allow for later analysis of the rocket's flight.
+			This analysis could be performed by third-party software or by feeding the telemetry data back into the ground station system to simulate the live reception of the flight.
+			This is important both to later demonstrate the flight's events, and to debug the rocket's systems based upon the emergence of unstable flight characteristics not predicted by the HART team.
+
+			\noindent Given that this year's HART effort builds on work done in the two previous school years, the processing of data will be a significant first step. 
+			There have been large amounts of unprocessed telemetry data collected from previous launches which offers a chance to analyze and subsequently improve upon earlier performance. 
+			In particular, there is a significant amount of data on the in-flight thrust characteristics of these earlier rockets. 
+			The processing and subsequent analysis of this data is central to HART's ability to improve upon OSU's existing launch capability not only in terms of altitude but also in reliability (which was an issue during last year's launch).
+
+			\noindent Furthermore, the current HART team anticipates making several test launches prior to the ultimate competition launch at Spaceport America, including at least one full scale, full altitude test. 
+			The ability to process and analyze data from these tests will allow us to improve the final airframe and thruster design as well as to detect and address potential issues along the way. 
+			This ties into the second category: telemetry.
+
+
+			\paragraph{Algorithm}
+				\noindent Data will be written in a JSON format, which is easily parsed and clearly labeled, making it both human- and machine-readable.
+
+			\paragraph{Physical Implementation}
+				\noindent Data will be written to a file unique to the rocket stage and flight on a Flash drive.
+
+			\paragraph{Design Rationale}
+				\noindent The JSON format is easily parsed by computers, and most browsers automatically support the decomposition of a JSON object into a client-side memory construct to provide data for a web page.
+				This will ease the transmission of data to the front-end system.
+				Storing the data on an external Flash drive will make it much more accessible, as the Flash drive can be removed from the ground station and plugged into other, more powerful computers, to perform more specific analysis.
+
+		\subsubsection{Telemetry Transmission to Data Processing Subsystem}
+			\noindent Because the telemetry reception subsystem has the very tight time constraint of receiving transmissions in real time, it is safest to minimize the functional actions of the subsystem's process and interpret the telemetry on another process.
+			Writing data to a separate function allows for a "fire and forget" approach, where data is written to a connecting bridge, and it is presumed that the other side is reading the data from the bridge at whatever pace is necessary.
+
+			\paragraph{Algorithm}
+				\noindent The received telemetry data will be written to a software pipe connected to the data processing subsystem.
+
+			\paragraph{Physical Implementation}
+				\noindent No physical hardware is necessary for a software pipe to function.
+
+			\paragraph{Design Rationale}
+				\noindent The telemetry could be moved between functions using ports and sockets, pipes, or files.
+				All three methods give access to blocking read and write functions that force the receiving program to wait until a complete set of new data is written.
+				Ports and sockets require significant configuration, but allow for the telemetry reception and processing systems to execute on separate computers.
+				Because the ground station contains a single computer this is not necessary.
+				Using a software pipe is slightly more efficient than using a temporary file to transmit data between the telemetry reception and processing systems
+
+		\subsubsection{Telemetry Transmission to Front-end Subsystem}
+			\noindent Similar to live reception of telemetry, sending telemetry to the front-end is time-critical to the live visualization of the flight.
+			However, the code involved will be significantly different to the data processing system.
+			It therefore makes more sense to extract it to a separate subsystem and reuse the inter-subsystem data transmission code used to send code from the data reception subsystem to the data processing subsystem.
+
+			\paragraph{Algorithm}
+				\noindent The received telemetry data will be written to a software pipe connected to the data processing subsystem.
+
+			\paragraph{Physical Implementation}
+				\noindent No physical hardware is necessary for a software pipe to function.
+
+			\paragraph{Design Rationale}
+				\noindent This component follows the same rationale as the previously described component, the Telemetry Transmission to Data Processing Subsystem.
+
+	\subsection{Data Processing}
+		\noindent This section will explain the design of the back-end subsystem responsible for the processing of raw telemetry data from the rocket and the maintenance of an internal model of the rocket's position.
+
+		\noindent Once received, the data will be largely incomplete.
+		The available instrumentation covers barometric altitude, which is wholly unreliable above 100,000 feet above ground level, temperature, which can only roughly infer altitude, GPS position, which is unavailable once the rocket exceeds COCOM restrictions, and gyroscopic orientation and accelerometer data.
+		These last two will be the only data sources with consistent reliability for the duration of the flight.
+		Possessing altitude and acceleration measurements, it follows quite naturally to derive the velocity of the rocket stage.
+		It is also useful to derive thrust data for the analysis of rocket motor performance.
+
+		\noindent Additionally, the received telemetry data will contain noise due to minor variations in the physical condition of the rocket.
+		Barometric pressure in particular will read an extreme drop in altitude when the supersonic shockwave forms around the rocket as it passes Mach 1.
+		It is therefore useful to apply an algorithm to the received telemetry data to reduce this noise.
+
+		\subsubsection{Velocity Derivation}
+			\noindent The raw telemetry data will always include one measurement of vertical position, and one three-axis measurement of acceleration and orientation.
+			While the rocket has not exceeded COCOM restrictions, GPS data will provide another measurement of vertical position and a measurement of horizontal position.
+			This will provide one or two possible data sources to derive horizontal velocity along two axes, and two or three possible data sources to derive vertical velocity.
+
+			\paragraph{Algorithm}
+				\noindent Barometric altitude can be derived into a measure of velocity by simply measuring the change between each packet.
+				However, atmospheric pressure decreases exponentially, and so barometric altitude is only useful below around 100,000 feet above ground level.\\
+
+				\noindent Accelerometer and gyroscope together provide the orientation of three axes, and the acceleration upon those axes.
+				Three-axis velocity can be integrated by a Riemann sum over the timestep, but the data must first be converted from the orientation of the rocket to a fixed orientation, requiring additional processing.\\
+
+				\noindent GPS provides very precise measurements of lateral position above the Earth's surface and vertical position above it.
+				These position variables can be derived in a similar manner to barometric altitude, but will prove much more precise when GPS data is available.\\
+	
+				\noindent All available measurements of velocity will be combined in a weighted average accounting for 
+
+			\paragraph{Design Rationale}
+				Because multiple data sources are available for position and acceleration, we can find a more accurate measurement of the rocket's velocity by calculating it from all available methods and accounting for the uncertainty of each data source.\\
+				
+				\noindent Atmospheric pressure approaches 1-2\% of the pressure at sea level, and most commercially available barometers fail to reliably detect changes in altitude above no higher than 100,000 feet above ground level, with many failing even lower.
+				Because the rocket is expected to approach 150,000 feet above ground level, we cannot rely on barometric altitude to derive velocity for the entire duration of the flight.\\
+
+				\noindent Accelerometer and gyroscope are independent of atmospheric pressure and lack the restrictions GPS is subject to, and so provide the most reliable measurement of velocity at all altitudes.
+				However, because the rocket is spin-stabilized, the horizontal axes will be rapidly changing during the ascent, and all three axes will be rapidly changes as the rocket free-falls during descent until a drogue parachute is deployed.\\
+
+				\noindent GPS data is a far more reliable measurement of position than barometric altitude.
+				However, COCOM restrictions cause the GPS to disable itself when the rocket exceeds 1688 feet per second velocity and 59,055 feet in altitude.
+		\setlength\parindent{24pt}
+%-----------------------------------------------------------				
+
+\section{Front-End Component Design}
+	\noindent This section offers a break down of each component in the Avionics Ground System.
 	Each component is explored in terms of the GUI Element (representation), the Structural Element (implementation), and Design Rationale.
 
 	\subsection{Acceleration}
@@ -369,24 +569,21 @@ Further information regarding the agreed upon project requirements and specifica
 			Secondly, this display is crucial during the recovery stage following flight.
 			The inclusion of both simple GPS coordinates and a projection of location onto a map are both intended to facilitate the rapid location and recovery of both rocket stages.
 
-	\subsection{Data Storage}
-
-		\subsubsection{GUI Element}
-			The data storage function will not be reflected on the main display page, as it should be occurring in the background and takes place entirely on the ground station itself.
-			That being said, there should be a logging function on the base station which can be accessed from that hardware if needed.
-
-		\subsubsection{Structural Element}
-			In accordance with the modular design of the system, the storage of data should be isolated from the display components.
-			As both storage and display components will be working with the same information, they can both be passed duplicates of the processed telemetry, allow both components to operate simultaneously.
-			In order to achieve a maximum degree of readability for future teams, the JSON data format (with paired name-value data) has been chosen for data storage.
-
-		\subsubsection{Design Rationale}
-			Whereas the above functions serve an immediate purpose during and immediately proceeding the rocket's flight, the storage of data is intended for later review, either by future HART members or in the event of a catastrophic failure.
-			As the above functions will be displaying all of the information which would be stored, the further inclusion of a display element to the storage function would be entirely redundant and serve only to distract users.
-			As discussed earlier, however, the one exception to this would be the verbose logging of data storage on the ground station itself, if only as a means to ensure expected functionality.
-
-	%back-end stuff goes here??
-	
+	%\subsection{Data Storage}
+	%
+	%	\subsubsection{GUI Element}
+	%		The data storage function will not be reflected on the main display page, as it should be occurring in the background and takes place entirely on the ground station itself.
+	%		That being said, there should be a logging function on the base station which can be accessed from that hardware if needed.
+	%
+	%	\subsubsection{Structural Element}
+	%		In accordance with the modular design of the system, the storage of data should be isolated from the display components.
+	%		As both storage and display components will be working with the same information, they can both be passed duplicates of the processed telemetry, allow both components to operate simultaneously.
+	%		In order to achieve a maximum degree of readability for future teams, the JSON data format (with paired name-value data) has been chosen for data storage.
+	%
+	%	\subsubsection{Design Rationale}
+	%		Whereas the above functions serve an immediate purpose during and immediately proceeding the rocket's flight, the storage of data is intended for later review, either by future HART members or in the event of a catastrophic failure.
+	%		As the above functions will be displaying all of the information which would be stored, the further inclusion of a display element to the storage function would be entirely redundant and serve only to distract users.
+	%		As discussed earlier, however, the one exception to this would be the verbose logging of data storage on the ground station itself, if only as a means to ensure expected functionality.
 	
 \newpage
 
