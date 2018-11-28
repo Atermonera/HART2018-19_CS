@@ -3,8 +3,8 @@
 \usepackage[margin=1.0in]{geometry} 
 %%\geometry{textheight=9.5in, textwidth=7in}
 \usepackage{pdfpages}
-\usepackage{graphicx}
-%%\usepackage{caption,graphicx,float} 
+%\usepackage{graphicx}
+\usepackage{caption,graphicx,float} 
 \usepackage{listings}
 \usepackage{verbatim}
 \usepackage[english]{babel}
@@ -111,51 +111,56 @@
 		Further information regarding the agreed upon project requirements and specifications may be located in the Requirements Document.
 
 	\subsection{Reference Material}
-		[1]"COCOM - COCOM GPS Tracking Limits | Coordinating Committee for Multilateral Export Controls", Ravtrack, English, 2018. [Online]. Available:http://ravtrack.com/GPStracking/cocom-gps-tracking-limits/469/. [Accessed: 25- Nov- 2018].
+		\noindent [1]"COCOM - COCOM GPS Tracking Limits | Coordinating Committee for Multilateral Export Controls", Ravtrack, English, 2018. [Online]. Available:http://ravtrack.com/GPStracking/cocom-gps-tracking-limits/469/. [Accessed: 25- Nov- 2018].
+		
+		\noindent [2]"Avionics Definition", Merriam-Webster, English, 2018. [Online]. Available:https://www.merriam-webster.com
+		\noindent /dictionary/avionics. [Accessed: 25- Nov- 2018].
+		
+		\noindent [3]"About AIAA", AIAA, English, 2018. [Online]. Available:https://www.aiaa.org/AboutAIAA/. [Accessed: 25- Nov- 2018].
 
 	\subsection{Definitions and Acronyms}
 	\begin{itemize}
 		\item \textbf{AIAA:}
-			American Institute of Aeronautics and Astronautics.
+			American Institute of Aeronautics and Astronautics. \\
 		
 		\item \textbf{Avionics:}
-			A term for electronics employed in the specific context of aviation or aerospace.
+			electronics designed for use in aerospace vehicles. \\
 		
 		\item \textbf{Back-End:}
-			The non-user-facing components of the Avionics Ground System.
+			The non-user-facing components of the Avionics Ground System. \\
 		
 		\item \textbf{COCOM:}
 			An abbreviation for "Coordinating Committee for Multilateral Export Controls."
 			It ceased to function in 1994, but has a legacy of GPS restrictions preventing GPS-guided ballistic missiles.
-			These restrictions will affect the telemetry available for a period of the rocket's flight when it exceeds 515 meters per second and 18 kilometers altitude above ground level.
+			These restrictions will affect the telemetry available for a period of the rocket's flight when it exceeds 515 meters per second and 18 kilometers altitude above ground level. \\
 		
 		\item \textbf{GPS:}
-			Global Positioning System.
+			Global Positioning System. \\
 		
 		\item \textbf{Ground Station:}
 			The ground based receiver and broadcast system used by HART. 
-			Based on a Raspberry Pi, the ground station receives telemetry from the rocket, processes it, and then broadcasts it over wi-fi for view.
+			Based on a Raspberry Pi, the ground station receives telemetry from the rocket, processes it, and then broadcasts it over Wi-Fi for view. \\
 		
 		\item \textbf{GUI:}
-			Graphical User Interface.
+			Graphical User Interface. \\
 		
 		\item \textbf{ECE:}
-			Electrical and Computer Engineering
+			Electrical and Computer Engineering \\
 		
 		\item \textbf{Front-End:}
-			The user-facing components of the Avionics Ground System.
+			The user-facing components of the Avionics Ground System. \\
 		
 		\item \textbf{HART:}
-			High Altitude Rocketry Team.
+			High-Altitude Rocketry Team \\
 		
 		\item \textbf{ME:}
-			Mechanical Engineering	
+			Mechanical Engineering	\\
 		
 		\item \textbf{OSU:}
-			Oregon State University.
+			Oregon State University \\
 		
 		\item \textbf{USC:}
-			University of Southern California.
+			University of Southern California \\
 	
 	\end{itemize}
 
@@ -228,10 +233,10 @@
 
 	\subsection{Architectural Design}
 
-		%\begin{figure}[H]
-		%\fbox{\includegraphics[width=\textwidth]{graphics/archFlow.eps}}
-		%\caption{Basic Architecture}
-		%\end{figure}
+		\begin{figure}[H]
+		\fbox{\includegraphics[width=\textwidth]{flow.eps}}
+		\caption{Basic Data Architecture}
+		\end{figure}
 
 		\noindent The application shall consist of a single web page (hereafter referred to as the "main page") which will allow users to monitor telemetry and location for both rocket stages in near real-time both during and immediately proceeding flight.
 		This page will feature two sections.
@@ -266,7 +271,7 @@
 		Similarly, the use of appropriate colors for the location and trajectory display will allow for a more rapid assessment.
 		In both of these cases, a user will be able, if needed, to obtain more detailed information by conducting a closer examination of the readout, should such detail become necessary.
 
-		\noindent In the course of a flight, the rocket stages will rotate rapidly, vibrate, and shake violently as the fins  spin-stabilize the rocket, the motors create accoustic vibrations that propagate through the entire rocket, and the stages fall under parachute.
+		\noindent In the course of a flight, the rocket stages will rotate rapidly, vibrate, and shake violently as the fins  spin-stabilize the rocket, the motors create acoustic vibrations that propagate through the entire rocket, and the stages fall under parachute.
 		Furthermore, some measurements become unreliable when certain conditions are met, such as the barometer reading a spike in pressure as a shockwave forms around the rocket when it passes Mach 1.
 		All of these tendencies and events will generate a significant amount of experimental noise in the raw telemetry.
 		In order to present more digestible data, it is imperative that an algorithm be used to reduce this noise.
@@ -472,7 +477,7 @@
 				These thrust curves can be input into the data processing subsystem's internal model to approximate the thrust output by the motor in flight.
 			
 			\paragraph{Design Rationale}
-				\noindent Because the rocket motors are the only means by which the rocket can achieve its target altitude, analyzing their performance becomes important in troubleshooting the possible causes for unexpected behaviour, such as motor chuffs or burn instabilitiers.
+				\noindent Because the rocket motors are the only means by which the rocket can achieve its target altitude, analyzing their performance becomes important in troubleshooting the possible causes for unexpected behavior, such as motor chuffs or burn instabilities.
 				Being able to identify such causes from the telemetry data is the only possible means of doing so when the events occur beyond the limits of the human eye, as patterns in the exhaust trail such as a fading during a motor chuff aren't directly observable.
 				This feature is not mission-critical to the success of the rocket, but it is useful for analyzing failure cases.
 				
@@ -502,6 +507,13 @@
 %-----------------------------------------------------------				
 
 \section{Front-End Component Design}
+
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=120pt]{gauge.eps}}
+\caption{Uncolored Gauge Concept}
+\end{figure}
+
 	\noindent This section offers a break down of each component in the Avionics Ground System.
 	Each component is explored in terms of the GUI Element (representation), the Structural Element (implementation), and Design Rationale.
 
