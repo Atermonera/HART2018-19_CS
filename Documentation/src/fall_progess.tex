@@ -1,0 +1,248 @@
+%%\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\documentclass[journal,10pt,onecolumn,compsoc]{IEEEtran} 
+\usepackage[margin=1.0in]{geometry} 
+%%\geometry{textheight=9.5in, textwidth=7in}
+\usepackage{pdfpages}
+%\usepackage{graphicx}
+\usepackage{caption,graphicx,float} 
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage[english]{babel}
+\usepackage{url}
+\usepackage{setspace}
+%\usepackage{tabu}
+%\setlength{\parskip}{\baselineskip} 
+\setlength\parindent{24pt}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{			HART CS Capstone}
+\def \CapstoneTeamNumber{		11}
+\def \GroupMemberOne{			Rick Menzel}
+\def \GroupMemberTwo{			Matthew Forsland}
+\def \CapstoneProjectName{		High Altitude Rocketry Project}
+\def \CapstoneSponsorCompany{		OSU American Institute of Aeronautics and Astronautics (AIAA)}
+\def \CapstoneSponsorPerson{		Dr. Nancy Squires}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{			%Problem Statement
+				%Requirements Document
+				%Technology Review
+				%Design Document
+				Progress Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+%\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+    	\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \CapstoneTeamName\par 
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                \NameSigPair{\GroupMemberTwo}\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract
+		
+        	%This allows you to have sensible diffs when you use \LaTeX with version control, as well as giving a quick visual test to see if sentences are too short/long.
+        	%If you have questions, ``The Not So Short Guide to LaTeX'' is a great resource (\url{https://tobi.oetiker.ch/lshort/lshort.pdf})
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\setlength{\parskip}{\baselineskip}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+%\setlength{\parskip}{\baselineskip} 
+% 8. now you write!
+
+\section{Purpose \& Goals}
+
+	\subsection{Purpose}
+		\noindent The primary purpose of this project is to produce software for the processing, storage and visualization of avionics data during rocket launches.
+		HART is a multidisciplinary team, and the CS capstone team is working in close-conjunction with ME and ECE teams who have responsibility for the actual production, transmission and reception of rocket telemetry.
+		Once received at ground level, we will perform processing on the data, including the derivation of values such as thrust and (at least above certain altitudes) altitude.
+		Processed data is then written to non-volatile storage for preservation, and is also broadcast over Wi-Fi for display on wireless equipped devices.
+		The storage is important both to ensure the rocket performs as expected during tests and to allow future teams to learn for this year's project.
+		The visualization allows team members to monitor for unsafe conditions, track (and recover) the rocket stages, and, at least in a way, to fly with the rocket they have built over the course of 9+ months.
+	
+	\subsection{Goals}
+		\noindent The primary goal of the CS capstone team during Fall term has been to research the challenge of capturing telemetry from a high-altitude, high-speed rocket and subsequently work with our client to plan a suitable software solution.
+		In physical form, this has been represented by several documents: a Problem Statement, a Requirements Document, a series of Technology Reviews, and, finally, a Design Document, with each document essentially building on the previous.
+		Going forward, the team is prepared to move into the implementation of the solution we have designed.
+		Beginning in Winter term, HART as a whole is moving into a production phase.
+		As rocket components come together, the intention is to stage a series of flight tests progressing up to a potential full-scale, full-range flight some time in May 2019.
+		These flights serve not only as tests of the rocket hardware, but as critical opportunities to test the avionics systems, including those developed by this team.
+		And, much like a hardware failure can lead to time or cost overruns during this stage of the project, issues with the software systems can lead to the loss of valuable test data.
+		Finally, all of HART's efforts will come together for a final competition launch at the Spaceport America Cup in June 2019.
+\newpage
+%-------------------------------------------------------------------------------------------
+
+\section{Weekly Summaries}
+
+	\subsection{Week 4}
+		
+		\subsubsection{Activities}
+			During this week, the HART CS capstone was formed and assigned to the project.
+			Activities completed were thus largely related to setup and introductions.
+			On the first evening after being assigned, the CS team attended their first HART weekly meeting.
+			During this meeting, team members met each other for the first time and further introduced themselves to the rest of HART and to the client.
+			A team Github repo was established and access granted to team members, the assigned TA (Behnam Saeedi) and both course instructors.
+			Weekly meeting times for HART, the CS team and the assigned TA were set, and a team member attended the Requirements Document info session during office hours.
+			Finally, individual team members completed drafts of the Problem Statement which were subsequently combined into a combined team Problem Statement.
+		
+		\subsubsection{Problems}
+			The primary challenge during this early stage was a variable degree of LaTeX familiarity within the team. 
+			Fortunately, however, the more experienced team member was able to share their expertise and the required assignments were completed on schedule.
+	
+	\subsection{Week 5}
+	
+		\subsubsection{Activities}
+			During this week, the team met with the client, Dr. Squires, to discuss the forthcoming Customer Requirements document.
+			Following this meeting, team members completed the document and received (favorable) feedback from the client.
+			Several tasks relating to the team budget were completed, though this was a formality as the CS team is not using any team funds.
+			The CS sub-team further assisted HART with their universal customer requirements.
+			Weekly team, sub-team, and TA meetings were attended.
+			
+		\subsubsection{Problems}
+			Following feedback on the Problem Statement, it became apparent that the provided/required LaTeX template was not in fact accurate.
+			As a response, so additional research was required regarding manual formatting of LaTeX documents IAW IEEE standards.
+			An attempt to communicate with the client over email regarding the Requirements Document produced no response, requiring the team to make contact in-person.
+		
+	\subsection{Week 6}
+	
+		\subsubsection{Activities}
+			Following customer feedback on the Requirements Document, the team moved on to the completion of individual Tech Reviews.
+			This led directly to the breakdown of the project into two halves, with Matt Forsland taking responsibility for the back-end or data-processing portion, and Rick Menzel taking responsibility for the front-end, or visualization portion.
+			Conveniently, this task division aligned well with each team-member's respective interests.
+			Additionally, an underclassman joined HART this week with an interest in helping with the CS portion of the project, he was briefed on the way capstone works and given some research-related tasks to get acquainted.
+			Weekly team, sub-team, and TA meetings were attended.			
+				
+		\subsubsection{Problems}
+			An attempt to meet with the client during her scheduled office hours led to the discovery that this is impractical due to very long wait times. 
+			As such, much of the future communication with Dr. Squires has been completed during weekly HART meetings (which she generally attends).
+			Further issues appeared regarding LaTeX, specifically a gremlin relating to the inclusion of a reference page.
+			Some tweaks were made to the working template as a result.
+	
+	\subsection{Week 7}
+	
+		\subsubsection{Activities}
+			Personal final-draft Tech Reviews were completed by both team members.
+			The team met with Dr. Squires another time regarding the work completed thus far and the plan moving forward.
+			Notably, this discussion largely cemented the decision to implement a web-based visualization solution.
+			Weekly team, sub-team, and TA meetings were attended.
+			
+		\subsubsection{Problems}
+			No issues to report.
+	
+	\subsection{Week 8}
+	
+		\subsubsection{Activities}
+			After receiving grades/feedback on previous assignments, the team began some revision work.
+			Both team members continued research into potential implementation details.
+			One team member participated in the AIAA trip to Blue Origin's production facility/HQ in Kent, WA.
+			Weekly team, sub-team, and TA meetings were attended.
+		
+		\subsubsection{Problems}
+			One team member had a schedule conflict with the TA meeting, though alibis were made to both Ben and Matt prior to the scheduled meeting time.
+	
+	\subsection{Week 9}
+		
+		\subsubsection{Activities}
+			During this week, the team completed the Design Document building off all of the work thus far.
+			Weekly team, sub-team, and TA meetings were attended.
+		
+		\subsubsection{Problems}
+			The availability of additional details regarding the SA Cup in June led one team member to realize a potential logistical conflict.
+			This was discussed with the team client and Kirsten.
+			Rick Menzel may not attend the SA Cup, but if so will ensure Matt Forsland is able to perform any necessary duties at that time.
+	
+	\subsection{Week 10}
+		
+		\subsubsection{Activities}
+			The team submitted the Design Document and began work on the end-of-term Progress Update.
+			After noticing some inconsistencies between the laws regarding the use of commercial GPS systems on rockets and the information previously given to the team, some research was conducted.
+			This led to discussions with ME and ECE avionics team members in the interest of having GPS limitations removed from team instruments by the relevant manufacturers.
+			Further revisions to previous documentation including Customer Requirements.
+			Weekly team, sub-team, and TA meetings were attended.
+		
+		\subsubsection{Problems}
+			There were several issues related to the use of Kaltura.
+			Notably, the recording of a joint team video produced an unusable product due to lag and inconsistent audio in the exported video.
+			Subsequent attempts produced videos that play back as expected in Kaltura, but have high degrees of lag/de-syncing when exported.
+			As such, team members recorded audio for the Progress Report separately.
+\newpage
+%-------------------------------------------------------------------------------------------
+
+\section{Retrospective}
+
+\begin{center}
+\begin{table}[h!]
+\begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|} 
+	\hline
+	\textbf{Positives} & \textbf{Deltas} & \textbf{Actions} \\
+	\hline
+	Scheduled weekly meetings offer a convenient time for communication with client and other sub-teams & Meeting with client during office hours incurs significant wait times & Reserve client meetings for during team meetings when possible \\ 
+	\hline
+	HART Slack channel allows for easy, recorded communication between team members & Use of mixed contact methods led to minor delays in communication & Rely on Slack channel moving forward \\ 
+	\hline
+	TA provided excellent example documents - would have been lost with it! & Unclear team understanding of laws governing GPS use led to lack of clarity regarding the usefulness of GPS during flight  & Research current laws regarding the operation of GPS units at high speeds/altitudes \\
+	\hline
+	Excellent opportunities to meet with industry representatives including from SpaceX and Blue origin & Inconsistencies in provided LaTeX template led to lack of clarity regarding document formatting & Use TA-provided examples more for formatting going forward \\
+	\hline
+\end{tabular}
+\caption{Fall Term Retrospective}
+\label{table:1}
+\end{table}
+\end{center}
+\newpage
+%-------------------------------------------------------------------------------------------
+
+\section{State of the Project}
+	As of this writing, the HART CS capstone team has produced a preliminary Design Document and is prepared to move forward into implementation.
+	In conjunction with Dr. Squires and the remainder of HART, the team has arrived at a web-based design whereby the processing and storage of data is conducted by the ground station hardware prior to broadcasting it via Wi-Fi for visualization.
+	The design of the final system has been subdivided into a back- and front-end and responsibility has been delegated between team members.
+	
+	\noindent Preliminary work has been completed regarding the 2D component of the visualization system, as well as on the data-processing component of the system.
+	This has both increased team-member understanding of the path forward and informed the remainder of the system design.
+	Some preliminary conceptualization work has been done regarding the 3D component of the visualization system.
+	
+	\noindent Leading into Winter Term, it is this team's intention to begin prototyping work on the complete system.
+	The goal is to have a Minimum Viable Prototype ready for work close to the start of next term, allowing the team to focus more on refinements, bug-fixes and client feedback than otherwise possible.
+	
+
+\end{document}
