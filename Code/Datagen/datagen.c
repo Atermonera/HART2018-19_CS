@@ -2,15 +2,17 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <unistd.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <string.h>
 
-#define BOOSTER_ACCELERATION 9.8 * 12 	// 12G's acceleration
-#define SUSTAINER_ACCELERATION 9.8*5 	// 5G's acceleration
-#define COAST_ACCELERATION 9.8 * -1 	// -1G acceleration, not accounting for drag
-#define TERM_VEL 250 					// 250fts terminal velocity
-#define DROG_TERM_VEL 80 				// 80ft/s terminal velocity under drogue
-#define MAIN_TERM_VEL 10 				// 10ft/s terminal velocity under main
+#define GRAVITATION -32.17405					// Standard constant of gravition in ft/s^2
+#define BOOSTER_ACCELERATION 32.17405 *   11.2 	// ~11.2G's acceleration
+#define SUSTAINER_ACCELERATION 32.17405 * 22 	// ~22G's acceleration
+#define TERM_VEL 250 							// 250fts terminal velocity
+#define DROG_TERM_VEL 80 						// 80ft/s terminal velocity under drogue
+#define MAIN_TERM_VEL 10 						// 10ft/s terminal velocity under main
 
 
 int main(){
@@ -76,7 +78,7 @@ int main(){
 		}
 		
 		// Stage 2: Booster engine fires, positive acceleration
-		else if(clk < 8){
+		else if(clk < 11){
 			y_accel = BOOSTER_ACCELERATION;
 			y_vel += y_accel * measurement_delta;
 			y_dist += y_vel * measurement_delta;
@@ -86,8 +88,8 @@ int main(){
 		}
 		
 		// Stage 3: Interstage coast, negative acceleration
-		else if(clk < 14){
-			y_accel = COAST_ACCELERATION;
+		else if(clk < 16){
+			y_accel = GRAVITATION;
 			y_vel += y_accel * measurement_delta;
 			y_dist += y_vel * measurement_delta;
 			
@@ -96,7 +98,7 @@ int main(){
 		}
 		
 		// Stage 4: Sustainer engine fires, positive acceleration
-		else if(clk < 24){
+		else if(clk < 22){
 			y_accel = SUSTAINER_ACCELERATION;
 			y_vel += y_accel * measurement_delta;
 			y_dist += y_vel * measurement_delta;
@@ -107,7 +109,7 @@ int main(){
 		
 		// Stage 5: Coasting to apogee, negative acceleration
 		else if(y_vel > 0){
-			y_accel = COAST_ACCELERATION;
+			y_accel = GRAVITATION - (pow(y_vel, 2) * 32.17405) / (y_dist * pow(TERM_VEL, 2.0) /2600);
 			y_vel += y_accel * measurement_delta;
 			y_dist += y_vel * measurement_delta;
 			
@@ -122,7 +124,7 @@ int main(){
 			// Drag = const * vel^2
 			// term_vel = sqrt(Weight/const)
 			// Drag = vel^2 / term_vel^2
-			y_accel = ((pow(y_vel, 2) * 9.8) / pow(TERM_VEL, 2.0)) + COAST_ACCELERATION;
+			y_accel = ((pow(y_vel, 2) * 32.17405) / (y_dist * pow(TERM_VEL, 2.0) /2600)) + GRAVITATION;
 			y_vel += y_accel * measurement_delta;
 			y_dist += y_vel * measurement_delta;
 			
@@ -137,7 +139,7 @@ int main(){
 			// Drag = const * vel^2
 			// term_vel = sqrt(Weight/const)
 			// Drag = vel^2 / term_vel^2
-			y_accel = (pow(y_vel, 2) * 9.8 / pow(DROG_TERM_VEL, 2.0)) + COAST_ACCELERATION;
+			y_accel = (pow(y_vel, 2) * 32.17405 / (y_dist * pow(DROG_TERM_VEL, 2.0) /2600)) + GRAVITATION;
 			y_vel += y_accel * measurement_delta;
 			y_dist += y_vel * measurement_delta;
 			
@@ -152,7 +154,7 @@ int main(){
 			// Drag = const * vel^2
 			// term_vel = sqrt(Weight/const)
 			// Drag = vel^2 / term_vel^2
-			y_accel = (pow(y_vel, 2) * 9.8 / pow(MAIN_TERM_VEL, 2.0)) + COAST_ACCELERATION;
+			y_accel = (pow(y_vel, 2) * 32.17405 / (y_dist * pow(MAIN_TERM_VEL, 2.0) /2600)) + GRAVITATION;
 			y_vel += y_accel * measurement_delta;
 			y_dist += y_vel * measurement_delta;
 			
