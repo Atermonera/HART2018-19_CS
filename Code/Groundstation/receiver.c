@@ -35,6 +35,7 @@ int main(){
 	struct axis z;
 	double temperature;
 	double thrust;
+	double mass;
 	double magnetometer; // May be unnecessary
 	int timestamp;
 	int stop = 0; // Becomes true when we read a stop signal.

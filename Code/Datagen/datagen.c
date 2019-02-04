@@ -1,21 +1,41 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <string.h>
+#include "datagen.h"
 
-#define GRAVITATION -32.17405					// Standard constant of gravition in ft/s^2
-#define BOOSTER_ACCELERATION 32.17405 *   11.2 	// ~11.2G's acceleration
-#define SUSTAINER_ACCELERATION 32.17405 * 22 	// ~22G's acceleration
-#define TERM_VEL 250 							// 250fts terminal velocity
-#define DROG_TERM_VEL 80 						// 80ft/s terminal velocity under drogue
-#define MAIN_TERM_VEL 10 						// 10ft/s terminal velocity under main
+// Sets values to axis variables
+void set_axis(struct axis* a, dist, vel, accel){
+	a->dista = dist;
+	a->veloc = vel;
+	a->accel = accel;
+	return;
+}
 
+/* Function: get_temperature
+ * Description: Determines approximate temperature for a given altitude, 
+ *		given a base altitude and temperature
+ * Parameters:
+	* altitude - altitude in feet above ground level
+	* temp - temperature at ground level
+ * Returns:
+	Temperature at the specified altitude
+ */
+double get_temperature(double altitude, double temp){
+	for(int i = 0; i < altitude; i++){
+		if(i < 36000)		// Trposphere
+			temp += -1.98 / 1000;
+		else if(i < 65000)	// Tropopause
+			continue;
+		else if(i < 105000)	// Stratosphere 1
+			temp += 0.3 / 1000;
+		else if(i < 154200) // Stratosphere 2
+			temp += 0.8537 / 1000;
+		else if(i < 167300)	// Stratopause
+			continue;
+		else				// Mesosphere
+			temp += -0.8214 / 1000;
+	}
+	return temp;
+}
 
-int main(){
+int gen_data(){
 	
 	/********
 	Axes:
@@ -32,18 +52,12 @@ int main(){
 	Z
 	********/
 	
-	double x_accel, x_vel, x_dist;
-	double y_accel, y_vel, y_dist;
-	double z_accel, z_vel, z_dist;
+	struct dataset* data = malloc(sizeof(struct dataset) * (int) (measurement_duration / measurement_delta));
+	double clk;
 	
-	double temperature;
 	// TODO: Actually make lateral translations
 	// TODO: Use temperature
 	// TODO: Figure out how the gyro measures orientation
-	
-	double measurement_delta = 0.01; // Arbitrary: 100 measurement cycles per second
-	double clk;
-	int measurement_duration = 600; // 10m flight period in seconds
 	
 	// Open the output file
 	char outfile[50]; // File path
@@ -68,109 +82,88 @@ int main(){
 	************************************************************************************************************/
 	
 	clk = 0.0;
+	int i = 0;
+	int stage_count = 0;
+	double torque[3];
+	double term_vel = TERM_VEL;
+	
+	// RNG
+	time_t t;
+	srand((unsigned) time(&t));
+	int direction = rand() % 360; // Direction of lateral translation, degrees from east
+	int dir_change_timer = rand()%(int)(1/measurement_delta);
+	
+	// Initial step, no motion
+	data[i].temperature = GROUND_TEMP; // No change to temp
+	for(int j = 0; j < 2; j++)	
+		for(int k = 0; k < 2; k++)
+			data[i].gyro[j][k] = 0;		// No rotation
+	set_axis(&(data[i].x), 0, 0, 0);	// No motion
+	set_axis(&(data[i].y), 0, 0, 0);
+	set_axis(&(data[i].z), 0, 0, 0);
+	
+	clk += measurement_delta;
+	i++;
+	
 	while(clk < measurement_duration){
 		char buffer[256];
 		memset(buffer, '\0', sizeof(buffer));
-		// Stage 1: Motionless on pad
-		if(clk < 5){
-			sprintf(buffer, "{clock: %f, y_dist: 0, y_vel: 0, y_accel: 0}\n", clk);
-			write(file, buffer, strlen(buffer));
-		}
 		
-		// Stage 2: Booster engine fires, positive acceleration
-		else if(clk < 11){
-			y_accel = BOOSTER_ACCELERATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
+		// Increment stage count if it's passed the timer
+		if(launch_profile[stage_count][0] > 0 && clk < launch_profile[stage_count][0])
+			stage_count++;
 		
-		// Stage 3: Interstage coast, negative acceleration
-		else if(clk < 16){
-			y_accel = GRAVITATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
 		
-		// Stage 4: Sustainer engine fires, positive acceleration
-		else if(clk < 22){
-			y_accel = SUSTAINER_ACCELERATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
+		// Rotation
+		if(data[i-1].y.dista != 0.0)
+			torque[GYRO_Y] = data[i-1].y.veloc / data[i-1].y.dista; // Moving faster at lower altitudes causes the most rotation
+		else
+			torque[GYRO_Y] = 0;
+	//	torque[GYRO_X] = MIN(sin(direction * PI / 180) / data[i-1].y.veloc, 1);
+	//	torque[GYRO_Z] = MIN(cos(direction * PI / 180) / data[i-1].y.veloc, 1);
+		for(int j = 0; j < 2; j++)
+			for(int k = 0; k < 2; k++)
+				data[i].gyro[j][k] = data[i-1].gyro[j][k];
 		
-		// Stage 5: Coasting to apogee, negative acceleration
-		else if(y_vel > 0){
-			y_accel = GRAVITATION - (pow(y_vel, 2) * 32.17405) / (y_dist * pow(TERM_VEL, 2.0) /2600);
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
+		update_alignment(data[i].gyro, torque);
 		
-		// Stage 6: Falling from apogee, negative acceleration until at terminal velocity
-		else if(y_dist > 1500){
-			// Terminal velocity: 80
-			// positive coast acceleration, because that already has the negative
-			// Drag = const * vel^2
-			// term_vel = sqrt(Weight/const)
-			// Drag = vel^2 / term_vel^2
-			y_accel = ((pow(y_vel, 2) * 32.17405) / (y_dist * pow(TERM_VEL, 2.0) /2600)) + GRAVITATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
 		
-		// Stage 7: Falling under drogue, positive acceleration to new terminal velocity
-		else if(y_dist > 500){
-			// Terminal velocity: 25
-			// positive coast acceleration, because that already has the negative
-			// Drag = const * vel^2
-			// term_vel = sqrt(Weight/const)
-			// Drag = vel^2 / term_vel^2
-			y_accel = (pow(y_vel, 2) * 32.17405 / (y_dist * pow(DROG_TERM_VEL, 2.0) /2600)) + GRAVITATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
+		// Update vertical acceleration
+		data[i].y.accel = launch_profile[stage_count][1];
+		if(launch_profile[stage_count][2])
+			data[i].y.accel += (data[i].y.veloc < 0 ? 1 : -1) *(pow(y_vel, 2) * 32.17405) / (y_dist * pow(term_vel, 2.0);
 		
-		// Stage 8: Falling under main, positive acceleration to new terminal velocity
-		else if (y_dist > 0.0){
-			// Terminal velocity: 3
-			// positive coast acceleration, because that already has the negative
-			// Drag = const * vel^2
-			// term_vel = sqrt(Weight/const)
-			// Drag = vel^2 / term_vel^2
-			y_accel = (pow(y_vel, 2) * 32.17405 / (y_dist * pow(MAIN_TERM_VEL, 2.0) /2600)) + GRAVITATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
+		// TODO: convert fixed-axis accel into variable-axis accel
 		
-		// Stage 9: Landed, motionless on ground
-		else{
-			sprintf(buffer, "{clock: %f, y_dist: 0, y_vel: 0, y_accel: 0}\n", clk);
-			write(file, buffer, strlen(buffer));
+		// Vertical motion
+		data[i].y.veloc = data[i-1].y.veloc + measurement_delta * data[i].y.accel;
+		data[i].y.dista = data[i-1].y.dista + measurement_delta * data[i].y.veloc;
+		
+		data[i].temperature = get_temperature(data[i].y.dista, GROUND_TEMP);
+		
+		// TODO: lateral translation
+		set_axis(&(data[i].x), 0, 0, 0);
+		set_axis(&(data[i].z), 0, 0, 0);
+		
+		// Can't fall through the earth
+		if(data[i].y.dista){
+			set_axis(&(data[i].z), 0, 0, 0);
+		}
+	
 
-		}
+		// Update terminal velocity
+		if(data[i].y.accel > 1500)
+			term_vel = TERM_VEL;
+		else if(data[i].y.accel > 500)
+			term_vel = DROG_TERM_VEL;
+		else
+			term_vel = MAIN_TERM_VEL;
 		
+		
+		data[i].clk = clk;
 		// Increment clock to next measurement
 		clk += measurement_delta;
+		i++;
 	}
 	
 	close(file);
