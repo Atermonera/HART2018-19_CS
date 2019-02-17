@@ -1,0 +1,206 @@
+/* css formats for whole page */
+body {
+	font: 16px arial, helvetica, sans-serif;
+	background-color: #1e1e1e;
+}
+
+.gaugeContainer {
+	margin: auto;
+        width: 50%;
+}
+
+.positionCanvas {
+	position: absolute;
+    top: -80px;
+}
+
+/* css formats for the grid and grid elements */
+.grid-container {
+	display: grid;
+	grid-template-columns: 180px 180px 180px 180px 180px 180px;
+	grid-template-rows:    100px 180px 90px 90px 90px 90px;
+	background-color: #ff0000;
+	/*grid-gap: 10px;*/
+	color: #ffffff;
+}
+.grid-container > div {
+	background-color: #1e1e1e;
+	text-align: center;
+	padding: 0px 0px;
+  
+}
+.item1 {
+	grid-column-start: 1;
+	grid-column-end: 7;
+}
+.item1 > img {
+	margin: auto;
+	width: 100%;
+	height: 100%;
+	padding: 0px 0px;
+}
+.item7 > img {
+	margin: auto;
+	width: 75%;
+	height: 75%;
+	padding: 0px 0px;
+}
+.item10 > img {
+	margin: auto;
+	width: 75%;
+	height: 75%;
+	padding: 0px 0px;
+}
+.item11 {
+	grid-column-start: 5;
+	grid-column-end: 7;
+	grid-row-start: 2;
+	grid-row-end: 6;
+}
+.item11 > img {
+	margin: auto;
+	width: 99%;
+	height: 99%;
+	padding: 0px 0px;
+}
+.item13 {
+	grid-row-start: 3;
+	grid-row-end: 5;	
+}
+.item14 {
+	grid-column-start: 2;
+	grid-column-end: 4;
+	
+}
+.item16 {
+	grid-column-start: 4;
+	grid-column-end: 5;
+	grid-row-start: 3;
+	grid-row-end: 5;	
+}
+
+/* css formats for the segment display */
+.apogeeDisplay {
+	padding-top: 0;
+	padding-bottom: auto;
+	padding-left: auto;
+	padding-right: auto;
+}
+.apogeeDisplay .on {
+        fill: #00ff00;
+}
+.apogeeDisplay .off {
+        fill: #00ff00;
+        opacity: 0.15;
+}
+#apogeeContainer > svg {
+	background-color: #000000;
+}
+
+.boosterDisplay {
+	margin-top: auto;
+	margin-bottom: auto;
+	margin-left: auto;
+	margin-right: auto;
+}
+.boosterDisplay .on {
+        fill: #ff7b00;
+}
+.boosterDisplay .off {
+        fill: #ff7b00;
+        opacity: 0.15;
+}
+#boosterAltimeterContainer > svg {
+	background-color: #000000;
+}
+
+.sustainerDisplay {
+	margin-top: auto;
+	margin-bottom: auto;
+	margin-left: auto;
+	margin-right: auto;
+}
+.sustainerDisplay .on {
+        fill: #ff7b00;
+}
+.sustainerDisplay .off {
+        fill: #ff7b00;
+        opacity: 0.15;
+}
+#sustainerAltimeterContainer > svg {
+	background-color: #000000;
+}
+
+.boosterLatDisplay {
+	margin-top: auto;
+	margin-bottom: auto;
+	margin-left: auto;
+	margin-right: auto;
+}
+.boosterLatDisplay .on {
+        fill: #ff7b00;
+}
+.boosterLatDisplay .off {
+        fill: #ff7b00;
+        opacity: 0.15;
+}
+#boosterLatContainer > svg {
+	background-color: #000000;
+}
+
+.boosterLonDisplay {
+	margin-top: auto;
+	margin-bottom: auto;
+	margin-left: auto;
+	margin-right: auto;
+}
+.boosterLonDisplay .on {
+        fill: #ff7b00;
+}
+.boosterLonDisplay .off {
+        fill: #ff7b00;
+        opacity: 0.15;
+}
+#boosterLonContainer > svg {
+	background-color: #000000;
+}
+
+.sustainerLatDisplay {
+	margin-top: auto;
+	margin-bottom: auto;
+	margin-left: auto;
+	margin-right: auto;
+}
+.sustainerLatDisplay .on {
+        fill: #ff7b00;
+}
+.sustainerLatDisplay .off {
+        fill: #ff7b00;
+        opacity: 0.15;
+}
+#sustainerLatContainer > svg {
+	background-color: #000000;
+}
+
+.sustainerLonDisplay {
+	margin-top: auto;
+	margin-bottom: auto;
+	margin-left: auto;
+	margin-right: auto;
+}
+.sustainerLonDisplay .on {
+        fill: #ff7b00;
+}
+.sustainerLonDisplay .off {
+        fill: #ff7b00;
+        opacity: 0.15;
+}
+#sustainerLonContainer > svg {
+	background-color: #000000;
+}
+
+/* three.js style stuff*/
+.positionCanvas{
+    background-color:#383838;
+    height:450px;
+}

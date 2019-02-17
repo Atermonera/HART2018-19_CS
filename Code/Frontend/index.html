@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+    	<meta http-equiv="content-type" content="text/html;charset=utf-8">
+    	<title>HART Dash</title>
+	
+	<!-- Import External JS Dependencies -->
+	<!-- NOTE: these files should be localized for production -->
+	<!--script type="text/javascript" src="http://d3js.org/d3.v2.js"></script-->
+	<script type="text/javascript" src="http://iop.io/js/vendor/d3.v3.min.js"></script>
+	<script type="text/javascript" src="http://iop.io/js/iopctrl.js"></script>
+	
+	<!-- Import Localized JS Dependencies -->
+	<script src="js/gl-matrix.js"></script>
+	
+	<!-- Import GUI Element Scripts -->
+	<script type="text/javascript" src="js/google.js"></script>
+	
+	<!-- Import CSS -->
+	<link rel="stylesheet" href="css/main.css"> 	
+	
+				
+	</head>
+	
+	<body onload="initGauges()">
+		<script src="lib/three.js"></script>
+		<script src="lib/OrbitControls.js"></script>
+		
+		<div class="grid-container">
+		        <!-- TOP ROW: banner -->
+			<div class="item1"><img src="img/aiaa2.png" alt="OSU AIAA"></div>
+			<!--div class="item2"></div>
+			<div class="item3"></div>  
+			<div class="item4">4</div>
+			<div class="item5"></div>
+			<div class="item6"></div-->
+			<!-- 2ND ROW: boster velocity | pressure | thrust | sustainer velocity -->
+			<!--div class="item7"><img src="img/osu-vert.png" alt="OSU Logo"></div-->
+			<div class="item7" id="boosterVelocityGaugeContainer"></div>
+			<div class="item8" id="pressureGaugeContainer"></div>
+			<div class="item9" id="thrustGaugeContainer"></div>
+			<!--div class="item10"><img src="img/HARTpatch.png" alt="HART Team Patch"></div-->  
+			<div class="item10" id="sustainerVelocityGaugeContainer"></div>
+			<!--div class="item11"><img src="img/temp.jpg" alt="Position"></div-->
+			<div class="item11" id="positionCanvas"></div>
+			<!-- 3RD ROW: booster acceleration | altimeter | sustainer acceleration -->
+			<div class="item13" id="boosterAccelerationGaugeContainer"></div>
+			<div class="item14">
+				<div>APOGEE</div>
+				<div id="apogeeContainer"></div>	
+			</div>
+			<!--div class="item11">11</div-->
+			<div class="item16" id="sustainerAccelerationGaugeContainer"></div>
+			<!-- 4TH ROW: booster acceleration | stage altimeters| sustainer acceleration -->
+			<div class="item17">
+				<div>BOOSTER</div>
+				<div id="boosterAltimeterContainer"></div>
+			</div>
+			<div class="item18">
+				<div>SUSTAINER</div>
+				<div id="sustainerAltimeterContainer"></div>
+			</div>
+			<!-- 5TH ROW:  -->
+			<div class="item19">
+				<div>BOOSTER LAT</div>
+				<div id="boosterLatContainer"></div>	
+			</div>
+			<div class="item20">
+				<div>BOOSTER LON</div>
+				<div id="boosterLonContainer"></div>	
+			</div>
+			<div class="item21">
+				<div>SUSTAINER LAT</div>
+				<div id="sustainerLatContainer"></div>	
+			</div>
+			<div class="item22">
+				<div>SUSTAINER LON</div>
+				<div id="sustainerLonContainer"></div>	
+			</div>
+			<!-- 6TH ROW:  -->
+			<div class="item23"></div>
+			<div class="item24"></div>
+			<div class="item25"></div>
+			<div class="item26"></div>
+			<div class="item27"></div>
+			<div class="item28"></div>
+			<!--div class="item29">29</div>
+			
+			<div class="item30">30</div-->
+		</div>
+		
+		<script type="text/javascript" src="js/altimeter.js"></script>
+		<script type="text/javascript" src="js/position.js"></script>
+		
+		
+		
+		
+	</body>
+	
+</html>
