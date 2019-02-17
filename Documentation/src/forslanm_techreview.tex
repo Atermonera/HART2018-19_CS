@@ -1,0 +1,277 @@
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{			HART CS Capstone}
+\def \CapstoneTeamNumber{		11}
+\def \GroupMemberOne{			Matthew Forsland}
+\def \CapstoneProjectName{		High Altitude Rocketry Project}
+\def \CapstoneSponsorCompany{		OSU American Institute of Aeronautics and Astronautics (AIAA)}
+\def \CapstoneSponsorPerson{		Dr. Nancy Squires}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{
+				%Problem Statement
+				%Requirements Document
+				Technology Review
+				%Design Document
+				%Progress Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+%\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+	\begin{titlepage}
+		\pagenumbering{gobble}
+		\begin{singlespace}
+			\includegraphics[height=4cm]{coe_v_spot1}
+			\hfill 
+			% 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+			%\includegraphics[height=4cm]{CompanyLogo}   
+			\par\vspace{.2in}
+			\centering
+			\scshape{
+				\huge CS Capstone \DocType \par
+				{\large\today}\par
+				\vspace{.5in}
+				\textbf{\Huge\CapstoneProjectName}\par
+				\vfill
+				{\large Prepared for}\par
+				\Huge \CapstoneSponsorCompany\par
+				\vspace{5pt}
+				{\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+				{\large Prepared by }\par
+				Group\CapstoneTeamNumber\par
+				% 5. comment out the line below this one if you do not wish to name your team
+				%\CapstoneTeamName\par 
+				\vspace{5pt}
+				{\Large
+					\NameSigPair{\GroupMemberOne}\par
+				}
+				\vspace{20pt}
+			}
+			\begin{abstract}
+			% 6. Fill in your abstract
+				%This document is written using one sentence per line.
+				%This allows you to have sensible diffs when you use \LaTeX with version control, as well as giving a quick visual test to see if sentences are too short/long.
+				%If you have questions, ``The Not So Short Guide to LaTeX'' is a great resource (\url{https://tobi.oetiker.ch/lshort/lshort.pdf})
+				This document outlines three major design choices faced in the implementation of the 2018-19 HART groundstation.
+				It explores possible solutions to each design choice, examining advantages and disadvantages presented by each solution.
+				A recommendation for the design choice described in a section is made at the end of the relevant section, which explains the reasoning for that choice.
+			\end{abstract}     
+		\end{singlespace}
+	\end{titlepage}
+
+	\newpage
+	\pagenumbering{arabic}
+	\tableofcontents
+	% 7. uncomment this (if applicable). Consider adding a page break.
+	%\listoffigures
+	%\listoftables
+	\newpage
+
+
+	% 8. now you write!
+	\section{Introduction}
+		\noindent
+		This document proposes solutions for three problems faced in the development of the project:
+		
+		\begin{itemize}
+			\item The software language the groundstation will be implemented in.
+			\item The algorithm used to eliminate noise in received telemetry.
+			\item The format that the telemetry is stored in for later use.
+		\end{itemize}
+		
+		This document will explain the underlying advantages and disadvantages to each proposed solution for these three problems.
+		This document is meant to act as an aid in deciding which solutions would be most beneficial to building our project while accommodating client expectations for the end product.
+		
+
+		\subsection{Glossary}
+			\begin{itemize}
+				\item \textbf{COCOM}\cite{COCOM}
+					An abbreviation for "Coordinating Committee for Multilateral Export Controls."
+					It ceased to function in 1994, but has a legacy of GPS restrictions preventing GPS-guided ballistic missiles.
+					These restrictions will affect the telemetry available for a period of the rocket's flight when it exceeds 515 meters per second and 18 kilometers altitude above ground level.
+				\item \textbf{Groundstation}
+					The groundstation will receive telemetry data broadcast by the rocket during flight.
+					Because the rocket will exceed 5,000 feet above ground level, the point at which it becomes invisible to the human eye, broadcasting telemetry is necessary for the rocket to be tracked and its state to be known.
+				\item \textbf{HART}
+					High Altitude Rocketry Team
+				\item \textbf{Karman Line}
+					An altitude of 100 km above sea level; commonly understood as the boundary between the Earth's atmosphere and outer space.
+			\end{itemize}
+
+		%\subsection{References}
+		%	[Remove if unnecessary]
+
+	\newpage
+		
+	\section{Ground Station Software Language}
+		\noindent
+		The ground station software will be run on a Raspberry Pi computer running a Linux Operating System.
+		The software language the software is written in must be able to run on this hardware.
+		The choice of language will also influence the available libraries and systems to implement the GUI used to display data.
+		
+		\subsection{C}
+			\noindent
+			C is an imperative programming language that was first released in 1973\cite{C-origins}. 
+			It has since become one of the most prominent languages currently in use. 
+			C lacks non-primitive data types, so any data structures used in the project must be manually defined.
+			C can be compiled to run on almost any system. 
+			It also has a large volume of third-party libraries that can be used to implement or augment certain algorithms used in the project.
+			It requires manual memory management, reducing the amount of memory necessary for the project to function.
+			It's the most efficient language presented here, and so most suitable for realtime data collection.
+		
+		\subsection{C++}
+			\noindent
+			C++ is a child of C, which introduces object-oriented programming concepts to C.
+			Like C, C++ can be compiled to run on a wide variety of systems.
+			C++ also requires manual memory management, but with a lesser degree of freedom than C.
+			Because C++ supports object-oriented programming however, the functions `new` and `delete` are used to automatically allocate and free memory for data structures.
+			C++ has native libraries that give support for a number of non-primitive data structures, like dynamic-length strings and vectors.
+		
+		\subsection{C\#}
+			\noindent
+			C\#\cite{C-sharp} is a multi-paradigm programming language that is syntactically similar to C, but was developed by Microsoft.
+			C\# offers Object Oriented Programming, like C++.
+			Unlike the C family of languages, it offers automatic memory management and garbage collection.
+			Native libraries offer support for functional programming.
+			C\# is less efficient than C and C++.
+		
+		\subsection{Java}
+			\noindent
+			Java is a fully Object Oriented language, and is generally similar to C\#.
+			Java runs in its own environment, which allows it to be run on most systems.
+			Java automatically manages all memory, including allocation and garbage collection.
+			Command line arguments can improve the efficiency of this management, but it is generally less efficient than the C family of languages.
+			
+		\subsection{Python}
+			\noindent
+			Python is an interpreted language featuring dynamically-typed variables.
+			Python is interpreted by compiled C code.
+			Because it is interpreted, it is significantly slower than all other solutions listed here, which are compiled languages.
+			Python provides automatic memory management.
+			There is a very large number\cite{Python-libraries} of native and third-party libraries that can be used to implement or augment certain algorithms used in the project.
+		
+		\subsection{Language Recommendation}
+			\noindent
+			Because we are receiving live telemetry broadcast from the rocket, program efficiency is a very high priority.
+			The rocket will transmit data at a known rate, and whether on one or more threads, the groundstation must be ready to receive and process the new data, or at least store it for later reference.
+			C and C++ are favorable solutions to this requirement, and Python is unfavorable.
+			All languages proposed here offer a large number of native and third-party libraries that may contain useful functions for the project, as well as very active communities that can offer support on any issues we encounter.
+			Implementation of mathematical operations on received telemetry is therefore not reliant upon selection of language from those proposed.
+			The project does not stand to benefit greatly from object-oriented programming principles, such as inheritance and encapsulation.
+			Classes, and the related program architecture, are more useful for organizing multiple groupings of functionality.
+			Our project is more concerned with the processing of inter-related data and its storage in memory.
+			As such, I recommend the use of C to implement the groundstation software.
+			
+	\section{Telemetry Noise Reduction}
+		\noindent
+		Any data measured by the rocket will have statistical noise and other discrepancies.
+		We must use an algorithm to account for this noise to improve the visualization of the rocket's state.
+		
+		\subsection{Kalman Filter}
+			\noindent
+			Kalman Filtering\cite{Kalman-Filter}, or Linear Quadratic Estimation, is an algorithm that models the state of a set of variables.
+			It uses a joint probability distribution to reduce statistical noise in the sources of those variables.
+			A Kalman filter makes a prediction for the next set of inputs and their uncertainties, then applies variable weights to the real values of the inputs based on the probabilities of those inputs occurring given the prediction.
+			The algorithm requires only the present input measurements, the previously calculated state, and an uncertainty matrix.
+			
+		\subsection{Hidden Markov Model}
+			\noindent
+			A Hidden Markov Model is a stochastic model used to model randomly changing systems.
+			It assumes that the real state is not directly visible, but can be measured.
+			Each state has a probability distribution over possible measurements, so a sequence of measurements can produce a joint-probability distribution to determine the most likely sequence of real states.
+			This algorithm is simpler to implement than a Kalman filter, but requires extensive flight testing to properly generate joint-probability distributions for measurements.
+	
+		\subsection{No Noise-reducing Algorithm}
+			\noindent
+			If no algorithm were used, the telemetry received from the rocket would be sent directly to the visualization software.
+			This is the simplest possible approach, but will produce noisy and incomplete data.
+			When the rocket passes Mach 1, a supersonic shockwave will form over the rocket, causing a large pressure spike that barometric altitude readings will measure as a momentary drop to at-or-below ground-level.
+			Furthermore, when the rocket exceeds a 515 m/s or 18 kilometers in altitude\cite{COCOM}, the GPS will not provide data due to COCOM restrictions put in place to prevent GPS-guided ballistic missiles.
+		
+		\subsection{Algorithm Recommendation}
+			\noindent
+			The teams developing the groundstation for the previous two years' HART teams chose to implement Kalman filters, and I recommend that we do the same.
+			This provide access to people with knowledge of the design and implementation of the filter, and access to examples of the implemented algorithm.
+			Kalman filters are also used extensively in other applications in the aerospace industry\cite{Kalman-Filter}, and the method of noise reduction is much more calculated.
+			Rather than training a joint-probability distribution with extensive tests, we can generate equations for the uncertainties of measurements from different devices based upon their technical documentation.
+			For example, due to COCOM\cite{COCOM} restrictions, the GPS will not produce useful data above 515 meters per second and 18 kilometers altitude above ground level.
+			The filter can mask out this missing data, or fake data produced manually to give to the algorithm, by presuming that GPS data is completely unreliable and should not be used at all when the modeled state is above this threshold.
+			
+	\section{Telemetry Logging}
+		\noindent
+		As this year's effort is only a stepping stone toward the ultimate goal of launching a student-built rocket to the Karman Line, it is critical to make all the data gathered available to future teams in order to inform their subsequent designs.
+		
+		\subsection{CSV}
+			\noindent
+			The .csv file format separates data values by commas.
+			The order of data on each line must be known beforehand to make useful interpretation of the data, but requires minimal parsing.
+
+		\subsection{JSON}
+			\noindent
+			The data can be stored as a JSON Object, which is intended for usage by web applications.
+			Similar to .csv formatting, the structure of the data must be known beforehand.
+			JSON objects require more parsing by non-web-based applications to extract data.
+			
+		\subsection{XML}
+			\noindent
+			Extensible Markup Language (XML) is a markup language that encodes documents in both a human-readable and machine-readable format.
+			The structure is generally similar to HTML in format.
+			This represents the most parsing of the offered options to extract data.
+
+		\subsection{Format Recommendation}
+			\noindent
+			JSON and CSV present similar formatting and parsing requirements.
+			Because the visualization software will be implemented in a web-interface, making the data accessible to client-side web-based software is a priority.
+			JSON is designed for this application, and as such is the recommended solution to this problem.
+			XML requires much more parsing to extract data, and is less reliant on the format of the data being known a priori, so it is not recommended.
+			
+%	\section{Velocity Derivation}
+%		Derivation of velocity from data can be accomplished through a number of methods.
+%		Being able to represent velocity is important in the visualization of the rocket's state and in the analysis of its performance.
+%				
+%		\noindent
+%		Derivation of Barometric Altitude presents some issues, primarily with the pressure spike that occurs when the rocket passes the speed of sound.
+%		At very high altitudes, the thin atmosphere can also become much harder for a barometer to read accurately, introducing much higher variance in the measurements.
+%		Depending on the choice of noise reduction algorithm, these issues can be accounted for.
+%		The actual process of deriving altitude to find vertical velocity is simple, but barometric altitude is also limited to vertical velocity, and cannot be used to measure lateral velocity.
+%		
+%		\noindent
+%		Integration of Acceleration provides a more complete measure of the rocket's velocity than barometric altitude, as the accelerometer and gyroscope will provide acceleration measurements along all three axises.
+%		However, the data may require more processing, as the rocket will be spin-stabilized, so measurements of horizontal acceleration will be made about ever-changing axises.
+%		This method is roughly as complex as derivation of barometric altitude for vertical velocity, requiring a simple Riemann sum.
+%		Generating lateral velocity will require constant adjustment based on data read from the gyroscope.
+%			
+%		\noindent
+%		GPS provides the most accurate and accessible measure of the rocket's position, and so is the simplest data source to find velocity from.
+%		However, due to COCOM restrictions, data from GPS will be unavailable for a significant portion of the rocket's flight, as it will exceed both the 515 m/s velocity and 18 km altitude thresholds\cite{COCOM}.
+		
+%	\section{Thrust Derivation}
+%		\noindent
+%		Measuring the thrust is not directly possible on an unsecured rocket. 
+%		However, deriving it is important in the analysis of the rocket motors' performances.
+%		
+%		\noindent
+%		Thrust = Exhaust velocity * Propellant Mass Flow Rate.
+%		Based upon sharp, prolonged changes in the acceleration measured by the rocket, we can demarcate the times during which rocket motors were burning.
+%		The telemetry should also provide signals when the rocket motors are ignited.
+%		Using a known mass of the rocket propellant, we can determine the flow rate rate of mass out of the rocket, and adjust a measurement of force exerted by the rocket according to changes in rocket mass and miniscule changes in acceleration due to unknown variables in the propellant's combustion.
+		
+	\newpage
+
+	\bibliographystyle{IEEEtran}
+	\bibliography{forslanm_techreview}
+\end{document}
