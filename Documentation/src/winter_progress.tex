@@ -1,0 +1,256 @@
+%%\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\documentclass[journal,10pt,onecolumn,compsoc]{IEEEtran} 
+\usepackage[margin=1.0in]{geometry} 
+%%\geometry{textheight=9.5in, textwidth=7in}
+\usepackage{pdfpages}
+%\usepackage{graphicx}
+\usepackage{caption,graphicx,float} 
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage[english]{babel}
+\usepackage{url}
+\usepackage{setspace}
+%\usepackage{tabu}
+%\setlength{\parskip}{\baselineskip} 
+\setlength\parindent{24pt}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{			HART CS Capstone}
+\def \CapstoneTeamNumber{		11}
+\def \GroupMemberOne{			Rick Menzel}
+\def \GroupMemberTwo{			Matthew Forsland}
+\def \CapstoneProjectName{		High Altitude Rocketry Project}
+\def \CapstoneSponsorCompany{		OSU American Institute of Aeronautics and Astronautics (AIAA)}
+\def \CapstoneSponsorPerson{		Dr. Nancy Squires}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{			%Problem Statement
+				%Requirements Document
+				%Technology Review
+				%Design Document
+				Progress Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+%\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+    	\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \CapstoneTeamName\par 
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                \NameSigPair{\GroupMemberTwo}\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract
+		
+        	%This allows you to have sensible diffs when you use \LaTeX with version control, as well as giving a quick visual test to see if sentences are too short/long.
+        	%If you have questions, ``The Not So Short Guide to LaTeX'' is a great resource (\url{https://tobi.oetiker.ch/lshort/lshort.pdf})
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\setlength{\parskip}{\baselineskip}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+%\setlength{\parskip}{\baselineskip} 
+% 8. now you write!
+
+\section{Project Purpose \& Goals}
+
+	\subsection{Purpose}
+		\noindent The primary purpose of this project is to produce software for the processing, storage and visualization of avionics data during rocket launches.
+		HART is a multidisciplinary team, and the CS capstone team is working closely with ME and ECE teams who have responsibility for the actual production, transmission and reception of rocket telemetry.
+		Once received at ground level, we will perform processing on the data, including the derivation of values such as thrust and altitude.
+		Processed data is then written to non-volatile storage for preservation, and is broadcast over Wi-Fi for display on wireless equipped devices.
+		The storage is important both to ensure the rocket performs as expected during tests and to allow future teams to learn from this year's project.
+		The visualization allows team members to monitor for unsafe conditions, track (and recover) the rocket stages, and, at least in a way, to fly with the rocket they have built over the course of 9+ months.
+	
+	\subsection{Goals}
+		\noindent The primary goal of the HART CS Capstone team is to capture and display telemetry from a high-altitude, high-speed rocket.
+		This in turn serves several of the overall team goals.
+		Firstly and most importantly, the software produced by our team is the primary method by which the team will know if we have been successful in reaching our target altitude of 150,000 ft.
+		This verification of achieved altitude is critical because our team's primary mission is to launch a rocket to literally new heights, and a failure to capture accurate data would cast serious doubt on our accomplishments.
+		Secondly, our software is intended to aid in the rapid recovery of both rocket stages post flight via the display of stage positions and GPS coordinates.
+		Thirdly, we are providing the team with a means by which to vicariously participate in the rocket flight.
+		Not only should capturing and displaying this data serve as an aid in monitoring for and determining the causes of any potential issues, but it is our hope that it allows the team as a whole to feel a greater sense of satisfaction with the project into which they have put so much time and energy over the past school year.
+		The two most important milestones for our subteam will be the "Boosted Dart" launch (booster stage test) scheduled for April and the final competition launch at Spaceport America in June.
+\newpage
+%-------------------------------------------------------------------------------------------
+
+\section{Winter Term Progress}
+
+	\subsection{Backend}
+		
+		\subsubsection{}
+			
+		\subsubsection{}
+		
+		\subsubsection{Server}
+			Following some tests over Winter break, we ultimately decided to serve our website using Apache.
+			These tests involved setting up, configuring and running an Apache webserver in a similar configuration to what we will eventually implement for this system.
+			Additionally, one of our team members has gained some more advanced Apache skills through work in the last few months.
+	
+	\subsection{Front End}
+		Work on the front end of the system is progressing well and is close to nearing completion.
+		In addition to the specific component details found below, we have implemented a CSS grid layout for our dashboard, which allows us to quickly and easily position UI elements as desired.
+	
+		\subsubsection{2D Visualization System}
+			The 2D component of the systems is composed of 2 main pieces: a gauge-style display used to show current velocity, acceleration and thrust, as well as a digital-style readout for altitude and GPS coordinates.
+			Both of these components are currently complete and functioning as expected.
+			Gauge code is finished and is stylistically based on the gauges from the Google Charts API.
+			Gauges are currently user-configurable and fully customizable for parameters ranging from color and size to gauge name and maximum value.
+			They feature both a needle-style display and a textual readout.
+			The digital-style display code is also finished and has been integrated into the page for the altimeters and GPS readouts. 
+			Appearance of these displays is also easily customizable via CSS.
+			
+		\subsubsection{3D Visualization System}
+			Because the 3D visualization system is intended more as a visual enhancement than necessary feature and because it does not display any critical data (i.e. both altitude and position are displayed elsewhere), our work so far has prioritized the 2D system.
+			That being said, the 3D system is progressing well.
+			Currently, the three primary planes (ground, stage separation, and target) are being displayed, including the desired grid affect for the stage separation and target planes.
+			Additionally, what we believe to be the most challenging component, the 3D rotation handler, is complete.
+			This has been integrated into the system and successfully tested with both mouse and touch input.
+			Lastly, the 3D component has been successfully integrated into its final place in the dashboard view, alongside the 2D components.	
+\newpage
+
+%-------------------------------------------------------------------------------------------
+
+\section{Remaining Work}
+
+	\subsection{Backend}
+		
+		\subsubsection{}
+			
+		\subsubsection{}
+		
+		\subsubsection{Server}
+			The actual server implementation has not been completed due to an issue running Apache on the Windows Subsystem for Linux (WSL).
+			Given that prior tests successfully replicated the desired setup, we have decided to focus more of our effort up to this point on other, more difficult tasks.
+			This decision was further informed by our ability to implement almost every other component without the server.
+			The only exceptions to this are the texture for the ground plane in the 3D position display (the image for which cannot be locally hosted due to browser security settings), as well as the actual connection of an external machine to our system (i.e. the main goal of the server).
+	
+	\subsection{Front End}
+	
+		\subsubsection{2D Visualization System}
+			As of this writing, there are only relatively minor tasks left to do for the 2D visualization system. 
+			First, a minor change needs to be made to the layout: we have decided to remove the pressure gauge and as such will need to adjust other UI elements.
+			We also need to work with the other subteams regarding the exact min/max values we want to use for our gauges, as well as the warning and danger zones.
+			Once these changes are complete we will be ready to move into additional user testing leading up to our final competition launch.
+			If time allows, we also plan on implementing a simple mobile version of the dashboard; if we get to it, this will involve minor additions to the Apache server configuration and some simple re-formatting work in CSS.
+		\subsubsection{3D Visualization System}
+			The majority of the remaining work for the front end involves the 3D position display.
+			Perhaps the biggest piece remaining is the texturing of the ground plane.
+			We intend to use an image of the launch area for this, but have not yet decided whether we want this to be a static image or if we want to position the texture in such a way that the launch position lines up with the xz origin.
+			Icons and colors for the booster, sustainer and combined rocket are not yet fixed.
+			If we want to implement a system for deriving the flight path history of the rocket (as opposed to simply connecting reported positions with line segments), we will need to implement that.
+			We also need to complete a transfer function to properly adjust real-world position into our 3D coordinate system.
+			This will include code to adjust for launch position offset from origin, as well as an altitude conversion scheme.
+			Following completion of these tasks we will move into further user testing.
+			If time allows, we are considering adding buttons to the 3D display to do things like reset it or snap to a certain view position.
+\newpage
+
+%-------------------------------------------------------------------------------------------
+
+\section{Problems \& Solutions}
+
+	\subsection{Backend}
+	
+		Finally, our initial plan for testing our Apache server	was to deploy it on one of our development machines using the Windows Subsystem for Linux (WSL).
+		Unfortunately, this became an issue, apparently because Apache relies on several Linux kernel features that are missing from WSL.
+		As such, we now plan to do server testing on another laptop running Linux in a standalone setup.
+	
+	\subsection{Front End}
+		The main issue during the implementation of the system's front end has been a lack of prior familiarity with the APIs in question, namely d3.js and (at least initially) WebGL.
+		For d3.js, there is fortunately a robust development community with abundant tutorials, which made it easy to relatively quickly produce a series of basic prototypes for UI elements and then refine them as desired.
+		For WebGL, however, this lack of familiarity was more of an issue.
+		A first draft of the 3D position display was completed in WebGL but we were unsure as to how to implement the mouse and touch functionality and further felt that the code even at that point had already become verbose to the point of being unwieldy.
+		Research into how to implement mouse and touch functionality ultimately led us to a different API altogether, namely three.js.
+		After changing to this platform we were able to very quickly (within a day) surpass the progress made up to that point in WebGL and quickly and easily implement several new features (including the mouse and touch functionality).
+		On top of this, we feel that the three.js code is much easier to read and maintain versus the WebGL code.	
+		
+\newpage
+
+%-------------------------------------------------------------------------------------------
+
+\section{User Studies}
+
+	\subsection{First Feedback}
+		Given that the interface has not yet been finalized, we have not yet completed an in-depth formal user study.
+		We have however been engaging with the entire team periodically through the development process, presenting current iterations of UI elements during weekly team meetings throughout the term.
+		This has culminated in the presentation of a semi-complete dashboard during the meeting that took place February 11th.
+		During this meeting, the dashboard was presented to all team members in attendance and feedback was sought with regard to general clarity of information and the layout of UI elements.
+	
+	\subsection{Results}
+		The biggest piece of feedback we received thus far has been the desire to have information for both rocket stages displayed on a single screen, something that was noticeably absent from previous years' efforts.
+		To accommodate this, we made significant changes to the UI to allow for a higher number of gauges than originally anticipated and to display apogee information alongside altitudes and GPS coordinates for both stages. 
+	
+	\subsection{Plans}
+		Over the coming weeks we plan on taking the dashboard through several iterations of the presentation/feedback cycle as we near a final design.
+		During this time, we intend on asking team members to provide concrete feedback related to the aesthetics, functionality and usability of the design.
+		It is also important to note that HART has a test launch called "Boosted Dart" scheduled for April, at which time the entire airframe is assembled and launched for the first time.
+		This will likely serve as the final and most important test for our system, as this will be the primary opportunity to test the system in an non-simulated environment prior to competition in June.
+		While Boosted Dart is not a full scale launch (due to altitude restrictions we can only ignite the booster stage), it will allow us a chance to test our ability to receive, process and display live data from our actual rocket while actually in-flight.
+		
+\newpage
+
+%-------------------------------------------------------------------------------------------
+
+%\section{Retrospective}
+
+%\begin{center}
+%\begin{table}[h!]
+%\begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|} 
+%	\hline
+%	\textbf{Positives} & \textbf{Deltas} & \textbf{Actions} \\
+%	\hline
+%	Scheduled weekly meetings offer a convenient time for communication with client and other sub-teams & Meeting with client during office hours incurs significant wait times & Reserve client meetings for during team meetings when possible \\ 
+%	\hline
+%	HART Slack channel allows for easy, recorded communication between team members & Use of mixed contact methods led to minor delays in communication & Rely on Slack channel moving forward \\ 
+%	\hline
+%	TA provided excellent example documents - would have been lost with it! & Unclear team understanding of laws governing GPS use led to lack of clarity regarding the usefulness of GPS during flight  & Research current laws regarding the operation of GPS units at high speeds/altitudes \\
+%	\hline
+%	Excellent opportunities to meet with industry representatives including from SpaceX and Blue origin & Inconsistencies in provided LaTeX template led to lack of clarity regarding document formatting & Use TA-provided examples more for formatting going forward \\
+%	\hline
+%\end{tabular}
+%\caption{Fall Term Retrospective}
+%\label{table:1}
+%\end{table}
+%\end{center}
+%\newpage
+%-------------------------------------------------------------------------------------------
+
+\end{document}
