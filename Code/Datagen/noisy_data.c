@@ -57,7 +57,7 @@ int main(){
 	int file = open(outfile, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	printf("Output open\n");
 	
-	char buffer[256];
+	char buffer[1024];
 	memset(buffer, '\0', sizeof(buffer));
 	sprintf(buffer, "clock, x_dist, x_vel, x_accel, y_dist, y_vel, y_accel, z_dist, z_vel, z_accel, temperature, gyro_x, gyro_y, gyro_z\n");
 	write(file, buffer, strlen(buffer));
