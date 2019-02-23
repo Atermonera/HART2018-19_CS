@@ -1,7 +1,7 @@
 #include "datagen.h"
 
 // Sets values to axis variables
-void set_axis(struct axis* a, dist, vel, accel){
+void set_axis(struct axis* a, double dist, double vel, double accel){
 	a->dista = dist;
 	a->veloc = vel;
 	a->accel = accel;
@@ -35,22 +35,22 @@ double get_temperature(double altitude, double temp){
 	return temp;
 }
 
-int gen_data(){
+struct dataset* gen_data(double** launch_profile, double measurement_delta, int measurement_duration){
 	
-	/********
-	Axes:
-	^ Upwards
-	
-		Y	
+/********
+Axes:
+	 Upwards
+			  North
+		Y	Z	
 		|  /
 		| /
 		|/
-	----*----X
+	----*----X East
 	   /|
 	  / |
 	 /  |
-	Z
-	********/
+	
+********/
 	
 	struct dataset* data = malloc(sizeof(struct dataset) * (int) (measurement_duration / measurement_delta));
 	double clk;
@@ -95,9 +95,12 @@ int gen_data(){
 	
 	// Initial step, no motion
 	data[i].temperature = GROUND_TEMP; // No change to temp
-	for(int j = 0; j < 2; j++)	
-		for(int k = 0; k < 2; k++)
+	data[i].gyro = malloc(sizeof(double*) * 3);
+	for(int j = 0; j < 3; j++){
+		data[i].gyro[j] = malloc(sizeof(double) * 3);
+		for(int k = 0; k < 3; k++)
 			data[i].gyro[j][k] = 0;		// No rotation
+	}
 	set_axis(&(data[i].x), 0, 0, 0);	// No motion
 	set_axis(&(data[i].y), 0, 0, 0);
 	set_axis(&(data[i].z), 0, 0, 0);
@@ -106,32 +109,39 @@ int gen_data(){
 	i++;
 	
 	while(clk < measurement_duration){
+	//	printf("Clock step: %f\n", clk);
 		char buffer[256];
 		memset(buffer, '\0', sizeof(buffer));
 		
 		// Increment stage count if it's passed the timer
-		if(launch_profile[stage_count][0] > 0 && clk < launch_profile[stage_count][0])
+		if(launch_profile[stage_count][0] > 0 && clk > launch_profile[stage_count][0]){
+			printf("launch_profile[%d] has expiry time %f, time is %f. Incrementing\n", stage_count, launch_profile[stage_count][0], clk);
 			stage_count++;
-		
+		}
 		
 		// Rotation
+	//	printf("Torque\n");
 		if(data[i-1].y.dista != 0.0)
 			torque[GYRO_Y] = data[i-1].y.veloc / data[i-1].y.dista; // Moving faster at lower altitudes causes the most rotation
 		else
 			torque[GYRO_Y] = 0;
 	//	torque[GYRO_X] = MIN(sin(direction * PI / 180) / data[i-1].y.veloc, 1);
 	//	torque[GYRO_Z] = MIN(cos(direction * PI / 180) / data[i-1].y.veloc, 1);
-		for(int j = 0; j < 2; j++)
-			for(int k = 0; k < 2; k++)
+	//	printf("Orientation\n");
+		data[i].gyro = malloc(sizeof(double*) * 3);
+		for(int j = 0; j < 3; j++){
+			data[i].gyro[j] = malloc(sizeof(double) * 3);
+			for(int k = 0; k < 3; k++)
 				data[i].gyro[j][k] = data[i-1].gyro[j][k];
-		
+		}
 		update_alignment(data[i].gyro, torque);
 		
 		
 		// Update vertical acceleration
+	//	printf("Vertical acceleration\n");
 		data[i].y.accel = launch_profile[stage_count][1];
-		if(launch_profile[stage_count][2])
-			data[i].y.accel += (data[i].y.veloc < 0 ? 1 : -1) *(pow(y_vel, 2) * 32.17405) / (y_dist * pow(term_vel, 2.0);
+		if(launch_profile[stage_count][2] == 1.0 && data[i-1].y.dista != 0.0)
+			data[i].y.accel += (data[i-1].y.veloc < 0 ? 1 : -1) * (pow(data[i-1].y.veloc, 2) * 32.17405) / (data[i-1].y.dista * pow(term_vel, 2.0));
 		
 		// TODO: convert fixed-axis accel into variable-axis accel
 		
@@ -168,5 +178,5 @@ int gen_data(){
 	
 	close(file);
 	
-	return 0;
+	return data;
 }

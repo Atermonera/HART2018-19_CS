@@ -1,50 +1,53 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <string.h>
+#include "datagen.h"
 
-#define GRAVITATION -32.17405					// Standard constant of gravition in ft/s^2
-#define BOOSTER_ACCELERATION 32.17405 *   11.2 	// ~11.2G's acceleration
-#define SUSTAINER_ACCELERATION 32.17405 * 22 	// ~22G's acceleration
-#define TERM_VEL 250 							// 250fts terminal velocity
-#define DROG_TERM_VEL 80 						// 80ft/s terminal velocity under drogue
-#define MAIN_TERM_VEL 10 						// 10ft/s terminal velocity under main
-
+// Box-Muller transform, for random normal distribution
+double get_rand(){
+	double u = (double) rand() / RAND_MAX;
+	double v = (double) rand() / RAND_MAX;
+	double x = sqrt(-2 * log(u)) * cos(2 * PI * v);
+//	printf("Generated: sqrt(-2 * log(%f)) * cos(2 * PI * %f) = %f\n", u, v, x);
+	return x;
+}
 
 int main(){
 	
-	/********
-	Axes:
-	^ Upwards
+	struct dataset* data;
+	double** launch_profile = malloc(sizeof(double*) * 5);
+	for(int i = 0; i < 5; i++)
+		launch_profile[i] = malloc(sizeof(double) * 3);
 	
-		Y	
-		|  /
-		| /
-		|/
-	----*----X
-	   /|
-	  / |
-	 /  |
-	Z
-	********/
+	// Launch profile configuration
+	launch_profile[0][0] = 5;						// 5 seconds
+	launch_profile[0][1] = 0;						// 0 acceleration
+	launch_profile[0][2] = 0.0;						// No drag
 	
-	double x_accel, x_vel, x_dist;
-	double y_accel, y_vel, y_dist;
-	double z_accel, z_vel, z_dist;
+	launch_profile[1][0] = 11;						// 6 seconds
+	launch_profile[1][1] = BOOSTER_ACCELERATION;	// ~11.2G's acceleration
+	launch_profile[1][2] = 1.0;						// No drag
 	
-	double temperature;
-	// TODO: Actually make lateral translations
-	// TODO: Use temperature
-	// TODO: Figure out how the gyro measures orientation
+	launch_profile[2][0] = 16;						// 5 seconds
+	launch_profile[2][1] = GRAVITATION;				// Standard constant of gravition in ft/s^2
+	launch_profile[2][2] = 1.0;						// No drag
+
+	launch_profile[3][0] = 21;						// 5 seconds
+	launch_profile[3][1] = SUSTAINER_ACCELERATION;	// ~22G's acceleration
+	launch_profile[3][2] = 1.0;						// No drag
+	
+	launch_profile[4][0] = -1;						// Max duration
+	launch_profile[4][1] = GRAVITATION;				// Standard constant of gravition in ft/s^2
+	launch_profile[4][2] = 1.0;						// Drag
 	
 	double measurement_delta = 0.01; // Arbitrary: 100 measurement cycles per second
 	double clk;
 	int measurement_duration = 600; // 10m flight period in seconds
+
+	// RNG
+	time_t t;
+	srand((unsigned) time(&t));
 	
+	data = gen_data(launch_profile, measurement_delta, measurement_duration);
+	
+	printf("Data complete\n");
 	// Open the output file
 	char outfile[50]; // File path
 	memset(outfile, '\0', sizeof(outfile));
@@ -52,128 +55,35 @@ int main(){
 	struct tm *timeinfo = localtime(&rawtime);
 	strftime(outfile, sizeof(outfile), "%F-%T.JSON", timeinfo);
 	int file = open(outfile, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	printf("Output open\n");
 	
-	// Piecewise generation of data is as follows
-	/***********************************************************************************************************
-	{T=0,  T=5: Motionless on pad																				}
-	{T=5,  T=8: First stage fires, constant positive acceleration												}
-	{T=8,  T=14: Interstage coast, constant negative acceleration												}
-	{T=15, T=24: Second stage fires, constant positive acceleration												}
-	{T=24, T=INF: Piecewise generation by altitude, velocity													}
-		{Constant negative acceleration																			}
-		{Negative velocity: Exponential decay of accel until terminal velocity									}
-		{Negative velocity, 1500 altitude: Drogue chute deploys, accel until new terminal velocity				}
-		{Negative velocity, 500 altitude: Main chute deploys, accel until new terminal velocity or altitude 0	}
-		{0 altitude: Landed, motionless for remaining duration													}
-	************************************************************************************************************/
+	char buffer[256];
+	memset(buffer, '\0', sizeof(buffer));
+	sprintf(buffer, "clock, x_dist, x_vel, x_accel, y_dist, y_vel, y_accel, z_dist, z_vel, z_accel, temperature, gyro_x, gyro_y, gyro_z\n");
+	write(file, buffer, strlen(buffer));
 	
-	clk = 0.0;
-	while(clk < measurement_duration){
-		char buffer[256];
-		memset(buffer, '\0', sizeof(buffer));
-		// Stage 1: Motionless on pad
-		if(clk < 5){
-			sprintf(buffer, "{clock: %f, y_dist: 0, y_vel: 0, y_accel: 0}\n", clk);
-			write(file, buffer, strlen(buffer));
-		}
-		
-		// Stage 2: Booster engine fires, positive acceleration
-		else if(clk < 11){
-			y_accel = BOOSTER_ACCELERATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
-		
-		// Stage 3: Interstage coast, negative acceleration
-		else if(clk < 16){
-			y_accel = GRAVITATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
-		
-		// Stage 4: Sustainer engine fires, positive acceleration
-		else if(clk < 22){
-			y_accel = SUSTAINER_ACCELERATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
-		
-		// Stage 5: Coasting to apogee, negative acceleration
-		else if(y_vel > 0){
-			y_accel = GRAVITATION - (pow(y_vel, 2) * 32.17405) / (y_dist * pow(TERM_VEL, 2.0) /2600);
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
-		
-		// Stage 6: Falling from apogee, negative acceleration until at terminal velocity
-		else if(y_dist > 1500){
-			// Terminal velocity: 80
-			// positive coast acceleration, because that already has the negative
-			// Drag = const * vel^2
-			// term_vel = sqrt(Weight/const)
-			// Drag = vel^2 / term_vel^2
-			y_accel = ((pow(y_vel, 2) * 32.17405) / (y_dist * pow(TERM_VEL, 2.0) /2600)) + GRAVITATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
-		
-		// Stage 7: Falling under drogue, positive acceleration to new terminal velocity
-		else if(y_dist > 500){
-			// Terminal velocity: 25
-			// positive coast acceleration, because that already has the negative
-			// Drag = const * vel^2
-			// term_vel = sqrt(Weight/const)
-			// Drag = vel^2 / term_vel^2
-			y_accel = (pow(y_vel, 2) * 32.17405 / (y_dist * pow(DROG_TERM_VEL, 2.0) /2600)) + GRAVITATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
-		
-		// Stage 8: Falling under main, positive acceleration to new terminal velocity
-		else if (y_dist > 0.0){
-			// Terminal velocity: 3
-			// positive coast acceleration, because that already has the negative
-			// Drag = const * vel^2
-			// term_vel = sqrt(Weight/const)
-			// Drag = vel^2 / term_vel^2
-			y_accel = (pow(y_vel, 2) * 32.17405 / (y_dist * pow(MAIN_TERM_VEL, 2.0) /2600)) + GRAVITATION;
-			y_vel += y_accel * measurement_delta;
-			y_dist += y_vel * measurement_delta;
-			
-			sprintf(buffer, "{clock: %f, y_dist: %f, y_vel: %f, y_accel: %f}\n", clk, y_dist, y_vel, y_accel);
-			write(file, buffer, strlen(buffer));
-		}
-		
-		// Stage 9: Landed, motionless on ground
-		else{
-			sprintf(buffer, "{clock: %f, y_dist: 0, y_vel: 0, y_accel: 0}\n", clk);
-			write(file, buffer, strlen(buffer));
+	for(int i = 0; i < (int) measurement_duration / measurement_delta; i++){
+//		printf("PRINTING %f\n", data[i].clk);
+		data[i].temperature += 0.64 * get_rand();
+	//	data[i].x.dista += data[i].x.dista * get_rand() / 10000;
+	//	data[i].x.veloc += data[i].x.veloc * get_rand() / 10;
+	//	data[i].x.accel += data[i].x.accel * get_rand() / 10;
+		data[i].y.dista += data[i].y.dista * get_rand() / 10000;
+		data[i].y.veloc += data[i].y.veloc * get_rand() / 1000;
+		data[i].y.accel += data[i].y.accel * get_rand() / 100;
+	//	data[i].z.dista += data[i].z.dista * get_rand() / 10000;
+	//	data[i].z.veloc += data[i].z.veloc * get_rand() / 10;
+	//	data[i].z.accel += data[i].z.accel * get_rand() / 10;
 
-		}
-		
-		// Increment clock to next measurement
-		clk += measurement_delta;
+		// Gyro noise will be random, small rotations about each axis
+	
+		memset(buffer, '\0', sizeof(buffer));
+// JSON		sprintf(buffer, "{clock: %f, x_axis: {dist: %f, vel: %f, accel: %f}, y_axis: {dist: %f, vel: %f, accel: %f}, z_axis: {dist: %f, vel: %f, accel: %f}, temperature: %f, gyro: {x: {i: %f,j: %f, k: %f}, y: {i: %f,j: %f, k: %f}, z: {i: %f,j: %f, k: %f}}}\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0][0], data[i].gyro[0][1], data[i].gyro[0][2], data[i].gyro[1][0], data[i].gyro[1][1], data[i].gyro[1][2], data[i].gyro[2][0], data[i].gyro[2][1], data[i].gyro[2][2]);
+		sprintf(buffer, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0][0], data[i].gyro[0][1], data[i].gyro[0][2], data[i].gyro[1][0], data[i].gyro[1][1], data[i].gyro[1][2], data[i].gyro[2][0], data[i].gyro[2][1], data[i].gyro[2][2]);
+		write(file, buffer, strlen(buffer));
 	}
 	
 	close(file);
-	
+	printf("Data written to: %s\n", outfile);
 	return 0;
 }

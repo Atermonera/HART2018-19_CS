@@ -5,15 +5,15 @@
 void update_alignment(double** curr, double* delta){
 	// Iterates over curr[]
 	for(int i = 0; i < 3; i++){
-
+	//	printf("i: %d\n", i);
 		// Iterates over delta[]
 		for(int j = 0; j < 3; j++){
-			
+		//	printf("j: %d\n", j);
 			// Copy curr[i] so that we can change curr and still access it during rotation
 			double rotating[3];
 			for(int k = 0; k < 3; k++)
 				rotating[k] = curr[i][k];
-			
+		//	printf("Axis copied\n");
 			// No effect rotating axis about itself, skip computation
 			if(i == j)
 				continue;

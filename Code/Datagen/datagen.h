@@ -47,13 +47,13 @@ struct axis{
 struct dataset{
 	double clk;
 	double temperature;
-	double gyro[3][3];
+	double** gyro;
 	struct axis x;
 	struct axis y;
 	struct axis z;
 };
 
-void set_axis(struct axis* a, dist, vel, accel);
+void set_axis(struct axis* a, double dist, double vel, double accel);
 
 double get_temperature(double altitude, double temp);
 
@@ -71,7 +71,7 @@ double get_temperature(double altitude, double temp);
  * Returns:
 	array containing struct dataset's for each timestep
  */
-struct dataset* gen_data(int** launch_profile, double measurement_delta = 0.01, int measurement_duration = 600);
+struct dataset* gen_data(double** launch_profile, double measurement_delta, int measurement_duration);
 	
 	// Piecewise generation of data is as follows
 	/***********************************************************************************************************
