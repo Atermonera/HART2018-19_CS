@@ -119,10 +119,35 @@
 
 	\subsection{Backend}
 		
-		\subsubsection{}
-			
-		\subsubsection{}
+		\subsubsection{Test Data Generation}
+			Test data for the Kalman Filter is procedurally generated according to a schedule of acceleration durations.
+			The accelerations are flat values approximated from data collected during motor tests performed by the Propulsion subteam.
+			Drag is approximated according to current velocity and an arbitrary constant, the latter of which is updated during descent to simulate drogue and main parachute deployment.
+			Orientation is represented as a set of three unit vectors describing the X, Y, and Z axes.
+			Test data is passed to a function that introduces statistical noise with a normal distribution provided by the Box-Mueller method.
+			Standard deviations are based upon the variance of instruments measuring each variable.
+			Noisy test data is passed directly to the Kalman Filter for testing.
+			Both clean and noisy test data are additionally output to JSON files for front end testing.
 		
+		\subsubsection{Telemetry Reception \& Storage}
+			The telemetry reception subsystem uses the LibUSB library to interface with the antenna via USB port on a Raspberry Pi.
+			The Raspberry Pi is running Ubuntu [Version pending].
+			USB interface variables have been determined by the ECE team, who is responsible for the assembly of the antenna and Serial-Parallel Interface.
+			Received data is stored in a JSON file for use by the front end.
+			
+		\subsubsection{Kalman Filter}
+			The Kalman Filter uses an array of doubles to represent the vector containing all variables.
+			Constant matrices are initially identity matrices, with deviations determined by guess-and-check testing to achieve a visually optimal result.
+			Matrix multiplication and inversion algorithms have been found online.
+			A matrix-manipulation library is not used due to concerns about memory size constraints on the flight computer and a lack of need.
+			The Kalman Filter was implemented in two steps, and is being tuned in three phases.
+			The Kalman Filter was initially implemented to solely function on vertical motion to simplify the initial writing of the algorithm.
+			The first phase of tuning the constant matrices occurs specifically with this version of the algorithm, to determine the effects of minor variations.
+			The remaining 13 variables were then introduced to the algorithm, expanding the matrices to 16x16.
+			The second phase of tuning occurs with this version of the algorithm, to most closely approximate expected flight data.
+			The third phase of tuning occurs after the first flight test, when real flight data becomes available.
+			This schedule was designed to minimize the complexity of progress moving from one step to the next.
+			
 		\subsubsection{Server}
       Although we had initially intended to serve our website in Apache due to the relative ease of configuring that platform, we have since decided to use a NodeJS server.
       This decision was largely informed by our data processing needs.
@@ -165,11 +190,21 @@
 \section{Remaining Work}
 
 	\subsection{Backend}
-		
-		\subsubsection{}
-			
-		\subsubsection{}
-		
+		\subsubsection{Data Generation}
+			Corner case datasets need to be generated, such as second stage ignition failure or catastrophic failure (CATO).
+			File naming is done in Date-Time format, but a sequence of anomalous characters are being appended to file names.
+			Data generation should optionally output to CSV format for ease of import into third-party visualization programs.
+			Time permitting, the thrust will be read from motor files to more accurately represent the progression of the motor burning.
+			Time permitting, drag will account for atmospheric pressure.
+			And attempt at accounting for atmospheric pressure was made previously, and resulted in a simulated altitude of approximately two astronomical units and a velocity in excess of 3 * 10\^55 times the speed of light within 4 seconds of motor ignition.
+			Such large values, which were stored in feet and feet per second, respectively, caused the program to grind to a halt.
+			The attempt was promptly abandoned.
+		\subsubsection{Kalman Filter}
+			Time permitting, we may begin the second phase of tuning before the end of the term, but expect to complete both the second and third phases during Spring Term.
+			We also hope to sufficiently document the algorithm such that future teams have an easier time comprehending the depths of its madness, as previous teams have failed to sufficiently explain it.
+		\subsubsection{Thrust}
+			An outline of the procedure to determine thrust has been produced, and if implemented will run on the telemetry reception subsytem.
+			The thrust is not essential to rocket staging performance, and represents another variable to add to the Kalman Filter, which represents another 33 values to potentially tune.
 		\subsubsection{Server}
       The majority of the remaining work with the server involves re-factoring our D3.js and Three.js code so that it works with our new server-side approach.
       The reason this is necessary is that the data flow we have chosen to use makes our initial client-side approach for the site unrealistic.
@@ -210,6 +245,18 @@
 \section{Problems \& Solutions}
 
 	\subsection{Backend}
+		% Kalman Filter uses constant matrices that must be computed by hand
+		The literature on the Kalman Filter that we were able to find explains the purpose of the constant matrices in a single-variable example, but does not sufficiently explain how to extend the constants to a multi-variate example using matrices.
+		Therefore, we intend to tune these constant matrices from identity matrices by guess-and-check, which will ultimately represent a significant amount of time wasted trying to determine the effects of changing each and every value by +/- 0.01.
+		Because the size of these matrices increases parabolically with the number of variables, we have also elected to start with a comparatively simple 3-variable implementation tracking vertical motion, and then expand it to the full suite of 16 variables tracking vertical motion, horizontal translation, orientation, and temperature.
+		% Generated data intrinsically inferior to flight data, resulting in stages of matrix tuning
+		While the procedurally generated data does roughly approximate various patterns we expect to see in the flight data, data collected during flight necessarily represents the most accurate data we can get.
+		We have elected to tune the Kalman filter matrices in three phases, as outlined above.
+		This will minimize the complexity of each step, and allows us to spend the most time working with real data.
+		
+		Finally, our initial plan for testing our Apache server	was to deploy it on one of our development machines using the Windows Subsystem for Linux (WSL).
+		Unfortunately, this became an issue, apparently because Apache relies on several Linux kernel features that are missing from WSL.
+		As such, we now plan to do server testing on another laptop running Linux in a standalone setup.
 	
 		As discussed above, our initial plan for serving the final site was to use Apache.
     As we progressed, however, we found that the data flow (specifically the file I/O and data parsing) made NodeJS a better solution for our project.
@@ -269,7 +316,7 @@
 %\begin{table}[h!]
 %\begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|} 
 %	\hline
-%	\textbf{Positives} & \textbf{Deltas} & \textbf{Actions} \\
+%	\textbf{Positives} & \textbf{Deltas} \& \textbf{Actions} \\
 %	\hline
 %	Scheduled weekly meetings offer a convenient time for communication with client and other sub-teams & Meeting with client during office hours incurs significant wait times & Reserve client meetings for during team meetings when possible \\ 
 %	\hline
