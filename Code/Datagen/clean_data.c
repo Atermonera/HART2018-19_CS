@@ -30,7 +30,7 @@ int main(){
 	
 	double measurement_delta = 0.01; // Arbitrary: 100 measurement cycles per second
 	double clk;
-	int measurement_duration = 600; // 10m flight period in seconds
+	int measurement_duration = 240; // 4m flight period in seconds
 	
 	data = gen_data(launch_profile, measurement_delta, measurement_duration);
 	
@@ -40,11 +40,11 @@ int main(){
 	memset(outfile, '\0', sizeof(outfile));
 	time_t rawtime = time(NULL);
 	struct tm *timeinfo = localtime(&rawtime);
-	strftime(outfile, sizeof(outfile), "%F-%T.JSON", timeinfo);
+	strftime(outfile, sizeof(outfile), "clean_%F-%Hh-%Mm-%Ss.JSON", timeinfo);
 	int file = open(outfile, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	printf("Output open\n");
 	
-	char buffer[256];
+	char buffer[1024];
 	memset(buffer, '\0', sizeof(buffer));
 	sprintf(buffer, "clock, x_dist, x_vel, x_accel, y_dist, y_vel, y_accel, z_dist, z_vel, z_accel, temperature, gyro_x, gyro_y, gyro_z\n");
 	write(file, buffer, strlen(buffer));
@@ -52,8 +52,8 @@ int main(){
 	for(int i = 0; i < (int) measurement_duration / measurement_delta; i++){
 //		printf("PRINTING %f\n", data[i].clk);
 		memset(buffer, '\0', sizeof(buffer));
-// JSON		sprintf(buffer, "{clock: %f, x_axis: {dist: %f, vel: %f, accel: %f}, y_axis: {dist: %f, vel: %f, accel: %f}, z_axis: {dist: %f, vel: %f, accel: %f}, temperature: %f, gyro: {x: {i: %f,j: %f, k: %f}, y: {i: %f,j: %f, k: %f}, z: {i: %f,j: %f, k: %f}}}\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0][0], data[i].gyro[0][1], data[i].gyro[0][2], data[i].gyro[1][0], data[i].gyro[1][1], data[i].gyro[1][2], data[i].gyro[2][0], data[i].gyro[2][1], data[i].gyro[2][2]);
-		sprintf(buffer, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0][0], data[i].gyro[0][1], data[i].gyro[0][2], data[i].gyro[1][0], data[i].gyro[1][1], data[i].gyro[1][2], data[i].gyro[2][0], data[i].gyro[2][1], data[i].gyro[2][2]);
+		sprintf(buffer, "{clock: %f, x_axis: {dist: %f, vel: %f, accel: %f}, y_axis: {dist: %f, vel: %f, accel: %f}, z_axis: {dist: %f, vel: %f, accel: %f}, temperature: %f, gyro: {x: {i: %f, j: %f, k: %f}, y: {i: %f, j: %f, k: %f}, z: {i: %f, j: %f, k: %f}}, rot: {x: %f, y: %f, z: %f)}\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0][0], data[i].gyro[0][1], data[i].gyro[0][2], data[i].gyro[1][0], data[i].gyro[1][1], data[i].gyro[1][2], data[i].gyro[2][0], data[i].gyro[2][1], data[i].gyro[2][2], data[i].rot[0], data[i].rot[1], data[i].rot[2]);
+// CSV		sprintf(buffer, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0][0], data[i].gyro[0][1], data[i].gyro[0][2], data[i].gyro[1][0], data[i].gyro[1][1], data[i].gyro[1][2], data[i].gyro[2][0], data[i].gyro[2][1], data[i].gyro[2][2], data[i].rot[0], data[i].rot[1], data[i].rot[0]);
 		write(file, buffer, strlen(buffer));
 	}
 	
