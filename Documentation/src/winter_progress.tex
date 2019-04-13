@@ -111,7 +111,7 @@
 		Secondly, our software is intended to aid in the rapid recovery of both rocket stages post flight via the display of stage positions and GPS coordinates.
 		Thirdly, we are providing the team with a means by which to vicariously participate in the rocket flight.
 		Not only should capturing and displaying this data serve as an aid in monitoring for and determining the causes of any potential issues, but it is our hope that it allows the team as a whole to feel a greater sense of satisfaction with the project into which they have put so much time and energy over the past school year.
-		The two most important milestones for our subteam will be the "Boosted Dart" launch (booster stage test) scheduled for April and the final competition launch at Spaceport America in June.
+		The two most important milestones for our subteam will be the "Boosted Dart" launch (a full airframe flight where only the booster stage is ignited) tentatively scheduled for April, and the final competition launch at Spaceport America in June.
 \newpage
 %-------------------------------------------------------------------------------------------
 
@@ -149,15 +149,22 @@
 			This schedule was designed to minimize the complexity of progress moving from one step to the next.
 			
 		\subsubsection{Server}
-			Following some tests over Winter break, we ultimately decided to serve our website using Apache.
-			These tests involved setting up, configuring and running an Apache webserver in a similar configuration to what we will eventually implement for this system.
-			Additionally, one of our team members has gained some more advanced Apache skills through work in the last few months.
+      Although we had initially intended to serve our website in Apache due to the relative ease of configuring that platform, we have since decided to use a NodeJS server.
+      This decision was largely informed by our data processing needs.
+      Specifically, there are several Node libraries intended to simplify tasks like file I/O and the efficient parsing of CSV and JSON data.
+      Due to the model we have chosen for moving data between the front- and backends, this added functionality was helpful, bordering on essential (as vanilla JavaScript is less than idea for these purposes).
+			As of the time of this writing, we have setup a Node server and have successfully configured it to serve both the desktop and mobile pages in a client-side paradigm.
+      It is also worth noting that we have built and configured a low spec laptop as a devtest environment to more closely approximate the Raspberry Pi that will run the production version.
+      Research into the best way to update the visualization in realtime has, however, indicated that a server-side paradigm is likely the route we need to go.
+      As such, we are currently reconfiguring our D3.js and Three.js code to run serverside.
+      In addition to the base server, we have written working code to read in and parse our data files.
 	
 	\subsection{Front End}
 		Work on the front end of the system is progressing well and is close to nearing completion.
 		In addition to the specific component details found below, we have implemented a CSS grid layout for our dashboard, which allows us to quickly and easily position UI elements as desired.
 		It is worth noting that we have opted to proceed with a design which displays data from both stages concurrently on the same screen.
 		While previous years' teams have taken varying approaches in this respect, we felt that it was desirable to avoid the need to toggle between screens/views to monitor all of the available data.
+    Both mobile and desktop pages have been written and are complete (both markup and CSS) except for some minor potential cosmetic changes.
 	
 		\subsubsection{2D Visualization System}
 			The 2D component of the system is composed of 2 main pieces: a gauge-style display used to show current velocity, acceleration and thrust, as well as a digital-style readout for both altitude and GPS coordinates.
@@ -199,36 +206,38 @@
 			An outline of the procedure to determine thrust has been produced, and if implemented will run on the telemetry reception subsytem.
 			The thrust is not essential to rocket staging performance, and represents another variable to add to the Kalman Filter, which represents another 33 values to potentially tune.
 		\subsubsection{Server}
-			The actual server implementation has not been completed due to an issue running Apache on the Windows Subsystem for Linux (WSL).
-			Given that prior tests successfully replicated the desired setup, we have decided to focus more of our effort up to this point on other, more difficult tasks.
-			This decision was further informed by our ability to implement almost every other component without the server.
-			The only exceptions to this are the texture for the ground plane in the 3D position display (the image for which cannot be locally hosted due to browser security settings), as well as the actual connection of an external machine to our system (i.e. the main goal of the server).
+      The majority of the remaining work with the server involves re-factoring our D3.js and Three.js code so that it works with our new server-side approach.
+      The reason this is necessary is that the data flow we have chosen to use makes our initial client-side approach for the site unrealistic.
+			Following this we will deploy the application to the production environment and perform testing with respect to performance and connectivity.
+			Once the visualization code is updated we will need to write a simple transfer function to properly adjust real-world position into our 3D coordinate system.
+      This will include code to adjust for launch position offset from origin, as well as an altitude conversion scheme.
+      %The only exceptions to this are the texture for the ground plane in the 3D position display (the image for which cannot be locally hosted due to browser security settings), as well as the actual connection of an external machine to our system (i.e. the main goal of the server).
+	
 	\subsection{Front End}
+	
 		\subsubsection{2D Visualization System}
 			As of this writing, there are only relatively minor tasks left to do for the 2D visualization system. 
 			We are currently using rough estimate maximum values and warning/danger ranges for the gauge readouts. 
 			As the airframe design is finalized we plan on adjusting these values based on the expected values produced by the Mechanical Engineering team's simulations (as well as our own simulations).
-			Additionally, a couple of minor tweaks to the CSS layout are needed to remove the colored background used for layout debugging.
+			Additionally, a couple of minor tweaks to the CSS layout may be needed to clean up the layout (though these should be minimal).
 			Once these changes are complete we will be ready to move into additional user testing leading up to our final competition launch.
-			If time allows, we also plan on implementing a simple mobile version of the dashboard; if we get to it, this will involve minor additions to the Apache server configuration and some simple re-formatting work in CSS.
-		\subsubsection{3D Visualization System}
+		
+    \subsubsection{3D Visualization System}
 			The majority of the remaining work for the front end involves the 3D position display.
 			Perhaps the biggest piece remaining is the texturing of the ground plane.
 			We intend to use an image of the launch area for this, but have not yet decided whether we want this to be a static image (the likely option) or if we want to position the texture in such a way that the launch position lines up with the xz origin.
 			The current plan for this is to begin with a static image and implement a more dynamic solution as a stretch goal if time permits.
-			Icons and colors for the booster, sustainer and combined rocket are not yet fixed (though changes here, if needed, would be trivial).
-			If we want to implement a system for deriving the flight path history of the rocket (as opposed to simply connecting reported positions with line segments), we will need to implement that.
-			While the initial plan was to use a Bezier curve or something similar, our simulations are producing points close enough together that this is unlikely to be needed for a smooth path.
-			We also need to complete a transfer function to properly adjust real-world position into our 3D coordinate system.
-			This will include code to adjust for launch position offset from origin, as well as an altitude conversion scheme, and is probably the biggest remaining piece of work for the front end.
+			Part of the reason for this delay is that our first launch takes place at a different location, and as such the final map would be pointless.
+      Icons and colors for the booster, sustainer and combined rocket are not yet fixed (though changes here, if needed, would be trivial).
 			Following completion of these tasks we will move into further user testing.
 			If time allows, we are considering adding buttons to the 3D display to do things like reset it or snap to a certain view position.
-		\subsubsection{Stretch Goals}
+		
+    \subsubsection{Stretch Goals}
 			As we near the completion of our hard requirements, we may be able to continue forward into some stretch goals.
-			As mention above, one of these will be to test a dynamic texturing system for the ground plane that allows us to ensure that the launch point of origin is placed at the xz origin of our coordinate system.
+			As mentioned above, one of these will be to test a dynamic texturing system for the ground plane that allows us to ensure that the launch point of origin is placed at the xz origin of our coordinate system.
 			Another stretch goal that we have discussed with our client is the implementation of a voice-prompt altitude system.
 			This would consist of a serious of audible (likely pre-recorded) cues that play when the rocket reaches certain altitude steps.
-			Additionally, if we have the time I plan on including a camera/view reset button and possibly a clear button on the 3D position display.
+			Additionally, if we have the time we plan on including a camera/view reset button and possibly a clear button on the 3D position display.
 \newpage
 
 %-------------------------------------------------------------------------------------------
@@ -249,15 +258,19 @@
 		Unfortunately, this became an issue, apparently because Apache relies on several Linux kernel features that are missing from WSL.
 		As such, we now plan to do server testing on another laptop running Linux in a standalone setup.
 	
+		As discussed above, our initial plan for serving the final site was to use Apache.
+    As we progressed, however, we found that the data flow (specifically the file I/O and data parsing) made NodeJS a better solution for our project.
+    In light of this, we have implemented our server in Node and are progressing with the necessary re-factoring of our visualization code.
+	
 	\subsection{Front End}
 		The main issue during the implementation of the system's front end has been a lack of prior familiarity with the APIs in question, namely d3.js and (at least initially) WebGL.
 		For d3.js, there is fortunately a robust development community with abundant tutorials, which made it easy to relatively quickly produce a series of basic prototypes for UI elements and then refine them as desired.
 		For WebGL, however, this lack of familiarity was more of an issue.
 		A first draft of the 3D position display was completed in WebGL but we were unsure as to how to implement the mouse and touch functionality and further felt that the code even at that point had already become verbose to the point of being unwieldy.
-		Research into how to implement mouse and touch functionality ultimately led us to a different API altogether, namely three.js.
+		Research into how to implement mouse and touch functionality ultimately led us to a different API altogether, namely Three.js.
 		After changing to this platform we were able to very quickly (within a day) surpass the progress made up to that point in WebGL and quickly and easily implement several new features (including the mouse and touch functionality).
-		On top of this, we feel that the three.js code is much easier to read and maintain versus the WebGL code.
-		The standard geometry methods offered by three.js (used in our design for the median and target planes as well as the stage icons) both made the code easier to write and read, but makes changing these elements as needed much simpler.		
+		On top of this, we feel that the Three.js code is much easier to read and maintain versus the WebGL code.
+		The standard geometry methods offered by Three.js (used in our design for the median and target planes as well as the stage icons) both made the code easier to write and read, but makes changing these elements as needed much simpler.		
 \newpage
 
 %-------------------------------------------------------------------------------------------
@@ -274,8 +287,20 @@
 		The biggest piece of feedback we received thus far has been the desire to have information for both rocket stages displayed on a single screen, something that was noticeably absent from previous years' efforts.
 		To accommodate this, we made significant changes to the UI to allow for a higher number of gauges than originally anticipated and to display apogee information alongside altitudes and GPS coordinates for both stages. 
 	
+  \subsection{Second Feedback}
+    For the second round of feedback we took a somewhat unconventional approach.
+    This entailed coding the mobile view live during one of our full-team integration tests. 
+    This gave us access to the full team and allowed us to gain live feedback as the code progressed.
+    As a result, the mobile view is something of a design-by-committee and directly reflects the desires and opinions of our team (i.e. our users).
+    Immediately following the completion of the mobile view we presented it along with an updated desktop page to the team during a team meeting.
+    
+  \subsection{Results}
+    Due to the unconventional approach to gathering feedback during this stage, the results were essentially the mobile page itself.
+    The one thing that was pointed out after development was that the sizing of elements was buggy on mobile screens of a certain size.
+    This is something we intend on clearing up as we move forward.
+  
 	\subsection{Plans}
-		Over the coming weeks we plan on taking the dashboard through several iterations of the presentation/feedback cycle as we near a final design.
+		As we near both code freeze and competition, we plan on taking the dashboard through several iterations of the presentation/feedback cycle as we near a final design.
 		During this time, we intend on asking team members to provide concrete feedback related to the aesthetics, functionality and usability of the design.
 		It is also important to note that HART has a test launch called "Boosted Dart" scheduled for April, at which time the entire airframe is assembled and launched for the first time.
 		This will likely serve as the final and most important test for our system, as this will be the primary opportunity to test the system in an non-simulated environment prior to competition in June.
