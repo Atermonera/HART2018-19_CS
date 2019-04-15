@@ -48,6 +48,7 @@ struct dataset{
 	double clk;
 	double temperature;
 	double** gyro;
+	double* rot;
 	struct axis x;
 	struct axis y;
 	struct axis z;

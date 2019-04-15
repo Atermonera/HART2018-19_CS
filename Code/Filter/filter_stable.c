@@ -608,7 +608,7 @@ int main(){
 	
 	printf("Opening files\n");
 	// Get data
-	char infile[64] = "2019-03-10-20h-59m-45s.csv";
+	char infile[64] = "sst_clean_2019-04-14-15h-25m-54s.csv";
 	char outfile[64] = "kalman_out.CSV";
 	// Need FILE pointer for geltine. Personally prefer integer file pointers, so that's used for output file
 	int fp = open(infile, O_RDONLY);
@@ -628,7 +628,7 @@ int main(){
 	do{
 		len = readLine(line, fp);
 	//	printf("Iteration %d\t read %d: %s\n", count, len, line);
-		sscanf(line, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", &(observation->clk), &a0, &a1, &a2, &(observation->variables[AXIS_Y_DIST][0]), &(observation->variables[AXIS_Y_VEL][1]), &(observation->variables[AXIS_Y_ACCEL][2]), &a3, &a4, &a5, &a6, &a7, &a8, &a9, &b0, &b1, &b2, &b3, &b4, &b5);
+		sscanf(line, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", &(observation->clk), &a0, &a1, &a2, &(observation->variables[AXIS_Y_DIST][0]), &(observation->variables[AXIS_Y_VEL][1]), &(observation->variables[AXIS_Y_ACCEL][2]), &a3, &a4, &a5, &a6, &a7, &a8, &a9, &b0, &b1, &b2, &b3, &b4, &b5, &b6, &b7);
 		memset(line, '\0', sizeof(line));
 		
 	//	printf("Line parsed\n");
