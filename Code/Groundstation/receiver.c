@@ -1,11 +1,7 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include "serial_telemetry.h"
 #include <math.h>
-#include <string.h>
 #include <time.h>
-#include <fcntl.h>
-#include <libusb.h>
-
+#include <sys/stat.h>
 
 struct axis{
 	double dista;
@@ -13,93 +9,105 @@ struct axis{
 	double accel;
 };
 
-// Parse the packet for the timestamp, so we know when this was sent
-double parse_time(){
-	
-}
-
-// Read packet, parse into variables
-void parse_packet(int packet, struct axis* x, struct axis* y, struct axis*z, double* temperature, int* timestamp){
-	
-}
-
-
 int main(){
 	struct axis x;
 	struct axis y;
 	struct axis z;
+	double rot[3];
 	double temperature;
 	double thrust;
 	double mass;
-	double magnetometer; // May be unnecessary
-	int timestamp;
+	double start_lat = -1; // Starting latitude and longitude
+	double start_lon = -1; // for distance calculations
+	int gps_set = 0; // If we've seen a gps packet for this data packet.
 	int stop = 0; // Becomes true when we read a stop signal.
+	int last_time = -1;
+	char* buffer = malloc(sizeof(char) * 1024);
+	memset(buffer, '\0', sizeof(buffer));
 	
 	
 	char outfile[50]; // File path
 	memset(outfile, '\0', sizeof(outfile));
 	time_t rawtime = time(NULL);
 	struct tm *timeinfo = localtime(&rawtime);
-	strftime(outfile, sizeof(outfile), "%F-%T.JSON", timeinfo);
+	strftime(outfile, sizeof(outfile), "%F-%Hh-%Mm-%Ss.JSON", timeinfo);
 	int file = open(outfile, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	
-	// USB setup
-	libusb_device_handle* interface = NULL; // Handle for antenna interface USB connection
-	libusb_device** devs; //pointer to pointer of device, used to retrieve a list of devices
-	libusb_context* ctx = NULL; //a libusb session
-	int ret;
-	char packet[64];
-	ssize_t cnt; // holding number of devices in list
-	ret = libusb_int(&ctx); // initialize library session
-	
-	libusb_set_debug(ctx, 3);
-	while(interface == NULL){
-		int devslen = 0;
-		while(devslen < 1) // Can't proceed until we see the antenna interface. It should be plugged in before starting this, but just in case, don't try to read from a non-existant interface.
-			devslen = libusb_get_device_list(ctx, &devs);
-		
-		interface = libusb_open_device__with_vid_pid(ctx, VID, PID);
-		
-		libusb_free_device_list(devs, 1);
-		free(devs);	
-	}
-	
-	if(libusb_kernel_driver_active(interface, 0) == 1)
-		while(libusb_detach_kernel_driver(interface, 0)); // While the kernel is trying to use the interface, keep trying to detach it
-	
-	// may need to set configuration here?
-	
-	ret = libusb_claim_interface(interface, 0); // Dibs the interface so our parents don't try to use the phone while we're on the modem
+	int stat;						// Stores return value of gather_telemetry
+	char* port = "/dev/ttyACM0";	// Location of USB0 pipe on Raspi
+	int pipe = setup_serial(port);	// Open file descriptor to USB0 pipe
+	struct basic timestamp;
+	struct dataPoint packet;
+	struct gpsData gps;
 	
 	do{
+		memset(buffer, '\0', sizeof(buffer));
 		// Read in data
-		// Read from interface,
-		// Read until we encounter a null-terminator
-		// Read into packet// Read no more than 64 bytes
-		// Store number of bytes in ret
-		// Timeout of 1000ms (1s)
-		int err = libusb_bulk_transfer(interface, '\0', packet, 64, ret, 1000);
-		// Check status flags (no gps, staging event, etc)
+		stat = gather_telemetry(pipe, &timestamp, &packet, &gps);
 		
+		// Check status flags (no gps, staging event, etc)
+		if(stat != 0 && stat != 1){// gather_telemetry failed
+			sprintf(buffer, "ERROR: Failed to read packet\n");
+			write(file, buffer, strlen(buffer));
+			continue;
+		}
 		// Compare timestamp
-	//	int newtime = parse_time();
+		if(last_time > timestamp.time){
+			sprintf(buffer, "ERROR: Timestamp out of order. Received %d, expected no lower than %d\n", timestamp.time, last_time);
+			write(file, buffer, strlen(buffer));
+			continue;	// No use trying to interpolate with a previous state as current
+		} else
+			last_time = timestamp.time;
 		
 		// If staging, output special line
+		if(timestamp.code & 0x8){
+			sprintf(buffer, "EVENT: LAUNCH\n");
+			write(file, buffer, strlen(buffer));
+		}
+		
+		if(timestamp.code & 0x10){
+			sprintf(buffer, "EVENT: STAGE SEPARATION");
+			write(file, buffer, strlen(buffer));
+		}
+		
+		if(timestamp.code & 0x20){
+			sprintf(buffer, "EVENT: DROGUE DEPLOYMENT");
+			write(file, buffer, strlen(buffer));
+		}
+		
+		if(timestamp.code & 0x40){
+			sprintf(buffer, "EVENT: MAIN DEPLOYMENT");
+			write(file, buffer, strlen(buffer));
+		}
 		
 		// else, parse for variables
-	//	parse_packet(packet, &x, &y, &z, &temperature, &timestamp);
+		if(stat == 0){			// Non-GPS data
+			x.accel = packet.acc.x;
+			y.accel = packet.acc.y;
+			z.accel = packet.acc.z;
+			temperature = packet.tmp;
+			rot[0] = packet.gyro.x;
+			rot[1] = packet.gyro.y;
+			rot[2] = packet.gyro.z;
+			y.dista = 145366.45 * (1 - pow(packet.prs/101325, 0.190284)); //Convert pressure in Pascals to Pressure Altitude (ft) according to ISA
+			sprintf(buffer, "PKT: x_acc %f, y_acc %f, z_acc %f, y_alt %f, tmptr %f, x_rot %f, y_rot %f, z_rot %f\n", x.accel, y.accel, z.accel, y.dista, temperature, rot[0], rot[1], rot[2]);
+		} else if (stat == 1){	// GPS data
+			gps_set = 1;
+			// Store the first gps coordinates as the origin for distance measurements.
+			if(start_lat == -1)
+				start_lat = gps.latitude;
+			if(start_lon == -1)
+				start_lon = gps.longitude;
+			sprintf(buffer, "GPS: lat %f, lon %f, spd %f, ang %f, alt %f\n", gps.latitude, gps.longitude, gps.speed, gps.angle, gps.altitude);
+		}
 		
 		// Write variables to file
-		write(file, packet, strlen(packet));
+		write(file, buffer, strlen(buffer));
 		
+		// Stop logic
+			// Never stop
 	} while(!stop); // When we read a stop signal, no more data
 	
-	libusb_release_interface(interface, 0);
-	libusb_close(interface);
-	libusb_exit(ctx); // Deinitialize library
 	close(file);
 	return 0;
 }
-
-
-

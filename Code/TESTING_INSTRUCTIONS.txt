@@ -1,0 +1,35 @@
+Datagen directory:
+	Command line: make all
+	Load output files into spreadsheet managing software (excel, google sheets, etc.)
+		You'll want to have each file in a separate sheet, rather than a separate file, within the spreadsheet manager.
+	Compile appropriate columns into graphs (the various columns for y_velocity, etc.,)
+		The gyroscopic axis components of the unit vecotrs (x_i, y_j, etc.) aren't well suited to this manner of visualization. I go more into it in Datagen/README.md, but visual analysis of the values within the table should confirm that the x, y, and z axes are orthogonal to one another.
+		The `sst_` files are for the sustainer (second stage), and so has acceleration for both stages
+		The `bst_` files are for the booster (first stage), and so have only the first phase of acceleration
+			Kalman filter testing currently uses sst_ files.
+			Layer `_clean_` columns over `_noisy_` columns, or they'll be obscured. Visual examination should confirm that the noisy data approximately follows the clean data.
+			
+			
+Filter directory:
+	Command line: make filter_stable
+		This will run a simplified version of the kalman filter, using only barometric pressure to interpolate vertical motion (dist, vel, accel).
+		There is an infinite loop condition because my stopping conditions for the test function are poorly defined. Once it stops printing a step count at around 23999, it's done with the input, and you can forceably stop the program.
+	Load kalman_out.csv into the same spreadsheet managing software as the output files for Datagen
+	Load y_dist, y_vel, and y_accel columns into appropriate graphs (second, third, and fourth columns respectively if they aren't labeled)
+		Ideally layered between the noisy data and the clean data.
+		visual analysis should confirm that the output of the kalman filter is generally less noisy than the noisy input for the distance.
+			Velocity should be more noisy, because it is interpolated.
+			Acceleration should be unreadable, because the timestep is so small that noise in the distance measurement create absurdly inaccurate acceleration measurements.
+				This is intentional. filter_stable only uses barometric pressure to interpolate vertical motion.
+	
+	NOT RECOMMENDED:
+	Command line: make filter_unstable
+		This will run a full version of the kalman filter, including kinematics along x, y, and z fixed axes, temperature, rotation about three variable gyroscopic axes, and unit vectors describing each such axis.
+		This makes the matrices involved 22x22. I go into detail in Filter/README.md, but there's a matrix inversion that bogs down this whole process.
+		I'd recommend having plenty of other things to do while this tries to run, and/or letting it run overnight. I attempted as much, but my computer went to sleep and closed the vpn connection to the engr servers.
+		I do not know how long this will take to process 29500 steps. Use this command at your own risk.
+		Furthermore, if this should complete, I should very much like to receive the output file and learn how long it took.
+
+Groundstation directory:
+	No tests implemented.
+	I discuss the general purpose a bit in Groundstation/README.md, but it's mostly a framework into which the kalman filter will be plugged.
