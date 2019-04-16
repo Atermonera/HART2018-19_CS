@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8">
+		
+		<title>HART Dash</title>
+	
+		<!-- Import External JS Dependencies -->
+		<!-- NOTE: these files should be localized for production -->
+		<script type="text/javascript" src="http://iop.io/js/vendor/d3.v3.min.js"></script>
+		<script type="text/javascript" src="http://iop.io/js/iopctrl.js"></script>
+	
+		<!-- Import Localized JS Dependencies -->
+		<script type="text/javascript" src="../js/gl-matrix.js"></script>
+	
+		<!-- Import GUI Element Scripts -->
+		<script type="text/javascript" src="../js/google.js"></script>
+	
+		<!-- Import CSS -->
+		<link rel="stylesheet" href="../css/mobile.css"> 	
+	</head>
+	<body onload="initGauges(); initReadouts()">
+		<script>
+			// handle the reception of telemetry from the websocket
+			var ws = new WebSocket('ws://localhost:1501');
+			
+			const index_index = 0;
+			const stg_clockIndex = 1;
+			const bst_x_dstIndex = 2;
+			const bst_y_dstIndex = 3;
+			const bst_z_dstIndex = 4;
+			const sus_x_dstIndex = 5;
+			const sus_y_dstIndex = 6;
+			const sus_z_dstIndex = 7;
+			const bst_x_velIndex = 8;
+			const bst_y_velIndex = 9;
+			const bst_z_velIndex = 10;
+			const sus_x_velIndex = 11;
+			const sus_y_velIndex = 12;
+			const sus_z_velIndex = 13;
+			const bst_x_accIndex = 14;
+			const bst_y_accIndex = 15;
+			const bst_z_accIndex = 16;
+			const sus_x_accIndex = 17;
+			const sus_y_accIndex = 18;
+			const sus_z_accIndex = 19;
+			const bst_s_tmpIndex = 20;
+			const sus_s_tmpIndex = 21;
+			const bst_s_latIndex = 22;
+			const bst_s_lonIndex = 23;
+			const sus_s_latIndex = 24;
+			const sus_s_lonIndex = 25;
+			
+			const vertAdj = 2000.;
+			const horiAdj = 16000.;
+		  
+			var apogeeAltitude = 0.0;
+			
+			// function to adjust position of and animate booster and sustainer icons
+			// also handles updates to the flight history path
+			function posAnimate(data) {
+				// only do booster if altitude > 0
+				if (data[bst_y_dstIndex] > 0) {
+					var bx = parseFloat(data[bst_x_dstIndex]) / horiAdj;
+					var by = parseFloat(data[bst_y_dstIndex]) / vertAdj;
+					var bz = parseFloat(data[bst_z_dstIndex]) / horiAdj;
+	 
+					addBoosterPathStep( bx, by, bz);
+					boosterIcon.position.x = bx;
+					boosterIcon.position.y = by;
+					boosterIcon.position.z = bz;
+		
+					
+				}
+				// only do sustainer if altitude > 0
+				if (data[sus_y_dstIndex] > 0) {
+					var sx = parseFloat(data[sus_x_dstIndex]) / vertAdj;
+					var sy = parseFloat(data[sus_y_dstIndex]) / vertAdj;
+					var sz = parseFloat(data[sus_z_dstIndex]) / vertAdj;
+	
+					addSustainerPathStep( sx, sy, sz);
+					sustainerIcon.position.x = sx;
+					sustainerIcon.position.y = sy;
+					sustainerIcon.position.z = sz;
+				}
+			}
+			// function to update d3 gauges  
+			function updateGauges(data) {
+				// get the combined acc and vel vectors
+				var bstAcc = sumXYZVectors(parseFloat(data[bst_x_accIndex]), parseFloat(data[bst_y_accIndex]), parseFloat(data[bst_z_accIndex]));
+				var bstVel = sumXYZVectors(parseFloat(data[bst_x_velIndex]), parseFloat(data[bst_y_velIndex]), parseFloat(data[bst_z_velIndex]));
+				var susAcc = sumXYZVectors(parseFloat(data[sus_x_accIndex]), parseFloat(data[sus_y_accIndex]), parseFloat(data[sus_z_accIndex]));
+				var susVel = sumXYZVectors(parseFloat(data[sus_x_velIndex]), parseFloat(data[sus_y_velIndex]), parseFloat(data[sus_z_velIndex]));
+				  
+				gauges["boosterAcceleration"].redraw(bstAcc.toFixed(0));
+				gauges["boosterVelocity"].redraw(bstVel.toFixed(0));
+				gauges["temperature"].redraw( parseInt(tempKtoF(parseFloat(data[sus_s_tmpIndex]))) );
+				gauges["sustainerVelocity"].redraw(susVel.toFixed(0));
+				gauges["sustainerAcceleration"].redraw(susAcc.toFixed(0));
+				
+			}
+			// function to update three.js digital readouts 
+			function updateReadouts(data) {
+				var b_Alt = parseInt(data[bst_y_dstIndex]);
+				var s_Alt = parseInt(data[sus_y_dstIndex]);
+			
+				if (b_Alt >= apogeeAltitude) {
+					apogeeAltitude = b_Alt;
+					readouts["apogee"].redraw(apogeeAltitude);
+				}
+				if (s_Alt >= apogeeAltitude) {
+				  apogeeAltitude = s_Alt;
+				  readouts["apogee"].redraw(apogeeAltitude);
+				}
+				readouts["boosterAltimeter"].redraw(b_Alt);
+				readouts["sustainerAltimeter"].redraw(s_Alt);
+				readouts["boosterLat"].redraw(data[bst_s_latIndex]);
+				readouts["boosterLon"].redraw(data[bst_s_lonIndex]);
+				readouts["sustainerLat"].redraw(data[sus_s_latIndex]);
+				readouts["sustainerLon"].redraw(data[sus_s_lonIndex]);
+				readouts["clock"].redraw(parseFloat(data[stg_clockIndex]).toFixed(2));
+			}
+			// helper function to sum 2Dvectors and return a combined 3D vector  
+			function sumXYZVectors(x_component, y_component, z_component) {
+				return Math.sqrt(x_component*x_component + y_component*y_component + z_component+z_component)
+			} 
+			// helper function to convert Kelven to Fahrenheit  
+			function tempKtoF(temp) {
+				return ((temp - 273.15) * (9./5.) + 32.);
+			}
+		  
+			// event emmited when connected
+			ws.onopen = function () {
+				console.log('websocket is connected...');
+				apogeeAltitude = 0;
+				// sending a send event to websocket server
+				ws.send('connected');
+			}
+	
+			// event emitted when receiving message 
+			ws.onmessage = function (ev) {
+				var line = ev.data.split(',');
+				//console.log(line[sus_s_latIndex]);
+				//console.log("time: " + parseFloat(line[clockIndex]).toFixed(2));
+				
+				// update gauges
+				updateGauges(line);
+				
+				// update digital readouts
+				updateReadouts(line);
+			
+				// update position
+				if (line[index_index] % 5 == 0) {
+					posAnimate(line);
+				}
+			}
+		</script>
+	
+		<script src="../lib/three.js"></script>
+		<script src="../lib/OrbitControls.js"></script>
+		<div class="content">
+		<div class="grid-container">
+		        <!-- TOP ROW: banner -->
+			<!--div class="item1"><img src="../img/aiaa2.png" alt="OSU AIAA"></div-->
+			<!-- 2ND ROW: boster velocity | pressure | thrust | sustainer velocity -->
+			<!-- altimeters -->
+			<div class="item1" >
+				<div>APOGEE</div>
+				<div id="apogeeContainer"></div>	
+			</div>
+			<div class="item2">
+				<div>BOOSTER ALT</div>
+				<div id="boosterAltimeterContainer"></div>
+			</div>
+			<div class="item3">
+				<div>SUSTAINER ALT</div>
+				<div id="sustainerAltimeterContainer"></div>
+			</div>
+			<!-- lat/lon readouts -->
+			<div class="item4">
+				<div>BOOSTER LAT</div>
+				<div id="boosterLatContainer"></div>	
+			</div>
+			<div class="item5">
+				<div>SUSTAINER LAT</div>
+				<div id="sustainerLatContainer"></div>		
+			</div>
+			<div class="item6">
+				<div>BOOSTER LON</div>
+				<div id="boosterLonContainer"></div>	
+			</div>
+			<div class="item7">
+				<div>SUSTAINER LON</div>
+				<div id="sustainerLonContainer"></div>	
+			</div>
+			<div class="item8">
+				<div>CLOCK</div>
+				<div id="clockContainer"></div>	
+			</div>
+			<!-- gauges -->
+			<div class="item9" id="boosterVelocityGaugeContainer"></div>
+			<div class="item10" id="sustainerVelocityGaugeContainer"></div>
+			<div class="item11" id="boosterAccelerationGaugeContainer"></div>
+			<div class="item12" id="sustainerAccelerationGaugeContainer"></div>
+			<div class="item13" id="thrustGaugeContainer"></div>
+			<div class="item14" id="positionCanvas"></div>
+		</div>
+		</div>
+		
+		<script type="text/javascript" src="../js/altimeter.js"></script>
+		<script type="text/javascript" src="../js/position.js"></script>
+	</body>
+</html>
