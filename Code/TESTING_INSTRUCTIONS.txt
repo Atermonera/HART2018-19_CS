@@ -39,11 +39,10 @@ FRONT-END:
 2. Before proceeding, the following dependencies MUST be installed on your machine:
 	a. nodejs (https://nodejs.org/en/download/)
 	b. npm (should install as part of nodejs)
-	c. nodemon (this is done by the script below, but can be done manually using the command 'npm install -g nodemon')
-3. Run the script 'run.bat' to install and run the front-end
-	a. if the script has issues, ensure you have installed nodemon (step 2C, above), then,
-	b. run 'npm install' to install the required node modules
-	c. run 'npm start' to start the front-end server
+3. Run the following commands in Command Prompt (I cannot script this as running node with a Batch Script would require adding your install location to $PATH and this can vary between machines):
+	npm install -g nodemon
+	npm install
+	npm start
 4. Once the program says it is listening, open a web browser (Firefox or Chrome).
 5. Navigate to localhost:1500
 6. The mobile page can be accessed at localhost:1500/mobile (note that it may not size correctly on desktop browsers).
