@@ -1,5 +1,6 @@
 #include "datagen.h"
-#define CSV 01#define JSON 1
+#define CSV 0
+#define JSON 1
 
 // Box-Muller transform, for random normal distribution
 double get_rand(){
