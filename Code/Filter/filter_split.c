@@ -48,6 +48,17 @@ struct state{
 	double** const_r;		// Observation variance
 };
 
+double** matrix_transpose(double** a, int n, int m){
+	double** b = malloc(sizeof(double*) * m);
+	for(int i = 0; i < m; i++){
+		b[i] = malloc(sizeof(double) * n);
+		for(int j = 0; j < n; j++)
+			b[i][j] = a[j][i];
+	}
+	
+	return b;
+}
+
 void init_state(struct state* S, int size){
 	S->size = size;
 	S->variables = malloc(sizeof(double*) * S->size);
@@ -81,9 +92,9 @@ void init_state(struct state* S, int size){
 			S->const_r[i][j] = 0;
 		}
 	}
-	
-	// Can't make the transpose matrices here, because we may need to edit const_a and const_c before generating the transpose
-	
+	// Matrix transposes
+	S->const_at = matrix_transpose(S->const_a, S->size, S->size);
+	S->const_ct = matrix_transpose(S->const_c, S->size, S->size);
 	return;
 }
 
@@ -102,10 +113,13 @@ void free_state(struct state* S){
 
 // Multiples matrix A(n x m) by matrix B (m x p), stores result in matrix result. Result must already be allocated in the correct size
 void matrix_mult(double** result, double** A, double** B, int n, int m, int p, int verbose){
+//printf("multiplying %d x %d by %d x %d\n", n, m, m, p);
 	for(int i = 0; i < n; i++){
 		for(int j = 0; j < p; j++){
+//printf("clearing result[%d][%d]\n", i, j);
 			result[i][j] = 0;
 			for(int k = 0; k < m; k++){
+//printf("k = %d\t", k);
 				if(verbose)
 					printf("result[%d][%d] += A[%d][%d] * B[%d][%d]\n %lf += %lf * %lf\n", i, j, k, i, j, k, result[i][j], A[k][i], B[j][k]);
 				result[i][j] += A[i][k] * B[k][j];
@@ -145,17 +159,6 @@ int readLine(char* lineptr, int fd){
 //	printf("Read line %s\n", lineptr);
 	free(nextchar);
 	return strlen(lineptr);
-}
-
-double** matrix_transpose(double** a, int n, int m){
-	double** b = malloc(sizeof(double*) * m);
-	for(int i = 0; i < m; i++){
-		b[i] = malloc(sizeof(double) * n);
-		for(int j = 0; j < n; j++)
-			b[i][j] = a[j][i];
-	}
-	
-	return b;
 }
 
 
@@ -292,14 +295,16 @@ Returns: curr is updated, no return
 ***************/
 void kalman_filter_step(struct state* curr, double timestep, int verbose, int debug, int crash){
 	int i, j;
+//printf("size = %d\n", curr->size);
 	// Temp variables
 	double** temp_var = malloc(sizeof(double*) * curr->size);
 	double** temp_sq0 = malloc(sizeof(double*) * curr->size);
 	double** temp_sq1 = malloc(sizeof(double*) * curr->size);
 	for(i = 0; i < curr->size; i++){
-		temp_var = malloc(sizeof(double) * 1);
-		temp_sq0 = malloc(sizeof(double) * curr->size);
-		temp_sq1 = malloc(sizeof(double) * curr->size);
+		temp_var[i] = malloc(sizeof(double) * 1);
+	//	temp_var[i][0] = 0;
+		temp_sq0[i] = malloc(sizeof(double) * curr->size);
+		temp_sq1[i] = malloc(sizeof(double) * curr->size);
 	}
 		
 	if(debug){
@@ -320,13 +325,17 @@ void kalman_filter_step(struct state* curr, double timestep, int verbose, int de
 		printf("Variables:\n");
 		matrix_print(curr->variables, curr->size, 1);
 		printf("\nINFO: Observation\n");
-		matrix_print(observation.variables, curr->size, 1);
+		matrix_print(curr->observations, curr->size, 1);
 		printf("\nGain:\n");
 		matrix_print(curr->gain, curr->size, curr->size);
 		printf("\np_k:\n");
 		matrix_print(curr->p_k, curr->size, curr->size);
 		printf("\n*******************\n");
 	} 	
+	
+//printf("temp_var: %d\n", (int) temp_var);
+//printf("temp_var[0]: %d\n", (int) temp_var[0]);
+//matrix_print(temp_var, curr->size, 1);
 	
 	// Prediction step:
 	matrix_mult(temp_var, curr->const_a, curr->variables, curr->size, curr->size, 1, 0);
@@ -363,7 +372,7 @@ void kalman_filter_step(struct state* curr, double timestep, int verbose, int de
 	
 	if(debug){
 		printf("\nCONST_C * X_hat:\n");
-		matrix_print(temp, 22, 1);
+		matrix_print(temp_var, 22, 1);
 	}
 	
 	// z - (C*x_hat)
@@ -412,7 +421,7 @@ void kalman_filter_step(struct state* curr, double timestep, int verbose, int de
 	// (C*P-k*Ct + R)
 	for(i = 0; i < curr->size; i++)
 		for(j = 0; j< curr->size; j++)
-			temp_sq0[i][j] += CONST_R[i][j];
+			temp_sq0[i][j] += curr->const_r[i][j];
 	
 	if(debug){
 		printf("\nCONST_C * p_k * CONST_Ct + R:\n");
@@ -445,7 +454,7 @@ void kalman_filter_step(struct state* curr, double timestep, int verbose, int de
 	// I - (gain * C)
 	// Copy P_k to temp
 	for(i = 0; i < curr->size; i++){
-		for(j = 0; j <curr->size22; j++){
+		for(j = 0; j <curr->size; j++){
 			temp_sq0[i][j] = (i == j ? 1 : 0) - temp_sq0[i][j];
 			temp_sq1[i][j] = curr->p_k[i][j];
 		}
@@ -479,9 +488,10 @@ void kalman_filter_step(struct state* curr, double timestep, int verbose, int de
 int main(){
 	struct state* kinematics = malloc(sizeof(struct state));
 	struct state* rotation = malloc(sizeof(struct state));
-	struct state temperature = malloc(sizeof(struct state));
+	struct state* temperature = malloc(sizeof(struct state));
 	double* observation = malloc(sizeof(double) * 14);	// Holds variables read from file that we don't directly measure (and therefore toss)
-	double clk
+	double clk;
+	double timestep = 0.01; // 0.01s between observations
 	init_state(kinematics, 9);
 	init_state(rotation, 6);
 	init_state(temperature, 1);
@@ -520,7 +530,7 @@ int main(){
 	}	
 	rotation->const_a[ROTATION_YAW][AXIS_YAW] 			= timestep;	
 	rotation->const_a[ROTATION_PITCH][AXIS_PITCH]		= timestep;
-	rotation->const_a[ROTATION_ROLL][AXIS_ROLL 			= timestep;
+	rotation->const_a[ROTATION_ROLL][AXIS_ROLL] 			= timestep;
 	
 	// temperature
 	temperature->const_a[TEMPERATURE][TEMPERATURE] = 1;
@@ -532,7 +542,7 @@ int main(){
 	
 	printf("Opening files\n");
 	// Get data
-	char infile[64] = "sst_noisy_2019-04-14-15h-23m-36s.csv";
+	char infile[64] = "sst_noisy.csv";
 	char outfile[64] = "kalman_out.CSV";
 	// Need FILE pointer for geltine. Personally prefer integer file pointers, so that's used for output file
 	int fp = open(infile, O_RDONLY);
@@ -550,11 +560,11 @@ int main(){
 	// Iterate data through filter
 	// readLine returns 0 on EOF
 	while(readLine(line, fp)){
-		printf("Iteration %d\t read %d: %s\n", count, strlen(line), line);
+	//	printf("Iteration %d\t read %d: %s\n", count, strlen(line), line);
 		sscanf(line, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", &(clk), &(observation[0]), &(observation[1]), &(kinematics->observations[AXIS_X_ACCEL][0]), &(kinematics->observations[AXIS_Y_DIST][0]), &(observation[2]), &(kinematics->observations[AXIS_Y_ACCEL][0]), &(observation[3]), &(observation[4]), &(kinematics->observations[AXIS_Z_ACCEL][0]), &(temperature->observations[TEMPERATURE][0]), &(observation[5]), &(observation[6]), &(observation[7]), &(observation[8]), &(observation[9]), &(observation[10]), &(observation[11]), &(observation[12]), &(observation[13]), &(rotation->observations[ROTATION_ROLL][0]), &(rotation->observations[ROTATION_YAW][0]), &(rotation->observations[ROTATION_PITCH][0]));
 		memset(line, '\0', sizeof(line));
 		
-		printf("Line parsed\n");
+	//	printf("Line parsed\n");
 				
 		printf("Analyzing step %d\n", count++);
 		// Kinematics step
@@ -585,8 +595,9 @@ int main(){
 		write(output, buffer, strlen(buffer));
 	}
 	
-	free_state(curr);
-	free_state(observation);
+	free_state(kinematics);
+	free_state(rotation);
+	free_state(temperature);
 	// Close files
 	close(fp);
 	close(output);

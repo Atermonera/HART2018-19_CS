@@ -41,19 +41,18 @@ int main(int argc, char* argv[]){
 	
 	double measurement_delta = 0.01; // Arbitrary: 100 measurement cycles per second
 	int measurement_duration = 240; // 10m flight period in seconds
-	int mode;
+	int mode = -1;
 
 	// RNG
 	time_t t;
 	srand((unsigned) time(&t));
 	
-	data = gen_data(launch_profile, measurement_delta, measurement_duration);
-	
-	printf("Data complete\n");
 	// Open the output file
 	char outfile[50]; // File path
 	memset(outfile, '\0', sizeof(outfile));
+	printf("argc: %d\n", argc);
 	if(argc < 3){
+		printf("Default file naming\n");
 		time_t rawtime = time(NULL);
 		struct tm *timeinfo = localtime(&rawtime);
 		strftime(outfile, sizeof(outfile), "sst_noisy_%F-%Hh-%Mm-%Ss", timeinfo);
@@ -66,25 +65,30 @@ int main(int argc, char* argv[]){
 		}
 	}
 	if(argc < 2 || !strcmp(argv[1], "CSV")){
-		sprintf(outfile, ".csv");
+		strcat(outfile, ".csv");
 		mode = CSV;
 	}
 	else if(!strcmp(argv[1], "JSON")){
-		sprintf(outfile, ".JSON");
+		strcat(outfile, ".JSON");
 		mode = JSON;
-	} else{
-		printf("Error: Invalid extension. Correct format:\nnoisy_data [file extension] [file name]\n");
-		exit(-2);
+//	} else{
+//		printf("Error: Invalid extension. Correct format:\nnoisy_data [file extension] [file name]\n");
+//		exit(-2);
 	}
+	
+	data = gen_data(launch_profile, measurement_delta, measurement_duration);
+	
+	printf("Data complete\n");	
+	
 	int file = open(outfile, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-	printf("Output open\n");
+	printf("Output open: %s\n", outfile);
 	
 	char buffer[4096];
 	memset(buffer, '\0', sizeof(buffer));
-	sprintf(buffer, "clock, x_dist, x_vel, x_accel, y_dist, y_vel, y_accel, z_dist, z_vel, z_accel, temperature, gyro_x, gyro_y, gyro_z\n");
+	sprintf(buffer, "clock, x_dist, x_vel, x_accel, y_dist, y_vel, y_accel, z_dist, z_vel, z_accel, temperature, gyro_yaw, gyro_pitch, gyro_roll, rot_yaw, rot_pitch, rot_roll, latitude, longitude\n");
 	write(file, buffer, strlen(buffer));
 	
-	for(int i = 0; i < (int) measurement_duration / measurement_delta; i++){
+	for(int i = 0; i <= (int) measurement_duration / measurement_delta; i++){
 //		printf("PRINTING %f\n", data[i].clk);
 		// Add noise
 		data[i].temperature += 0.64 * get_rand();
@@ -105,21 +109,24 @@ int main(int argc, char* argv[]){
 	
 		memset(buffer, '\0', sizeof(buffer));
 		if(mode == CSV) // CSV
-			sprintf(buffer, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0][0], data[i].gyro[0][1], data[i].gyro[0][2], data[i].gyro[1][0], data[i].gyro[1][1], data[i].gyro[1][2], data[i].gyro[2][0], data[i].gyro[2][1], data[i].gyro[2][2], data[i].rot[0], data[i].rot[1], data[i].rot[0]);
+			sprintf(buffer, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0], data[i].gyro[1], data[i].gyro[2], data[i].rot[0], data[i].rot[1], data[i].rot[2], (32.99038889 + data[i].z.dista / 364320), (105.0417222 + data[i].x.dista / 364320));
 		else if(mode == JSON)		// JSON
-			sprintf(buffer, "{clock: %f, x_axis: {dist: %f, vel: %f, accel: %f}, y_axis: {dist: %f, vel: %f, accel: %f}, z_axis: {dist: %f, vel: %f, accel: %f}, temperature: %f, gyro: {x: {i: %f, j: %f, k: %f}, y: {i: %f, j: %f, k: %f}, z: {i: %f, j: %f, k: %f}}, rot: {x: %f, y: %f, z: %f)}\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0][0], data[i].gyro[0][1], data[i].gyro[0][2], data[i].gyro[1][0], data[i].gyro[1][1], data[i].gyro[1][2], data[i].gyro[2][0], data[i].gyro[2][1], data[i].gyro[2][2], data[i].rot[0], data[i].rot[1], data[i].rot[2]);
+			sprintf(buffer, "{clock: %f, x_axis: {dist: %f, vel: %f, accel: %f}, y_axis: {dist: %f, vel: %f, accel: %f}, z_axis: {dist: %f, vel: %f, accel: %f}, temperature: %f, gyro: {yaw: %f, pitch: %f, roll: %f}, rot: {yaw: %f, pitch: %f, roll: %f)}\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0], data[i].gyro[1], data[i].gyro[2], data[i].rot[0], data[i].rot[1], data[i].rot[2]);
 				
 		write(file, buffer, strlen(buffer));
+		free(data[i].gyro);
+		free(data[i].rot);
 	}
 	
 	for(int i = 0; i < 5; i++)
 		free(launch_profile[i]);
 	free(launch_profile);
 	free(data);
+	data = NULL;
 	
 	close(file);
 	printf("Data written to: %s\n", outfile);
-	
+
 	
 	// BOOSTER SIMULATION
 	launch_profile = malloc(sizeof(double*) * 3);
@@ -147,22 +154,26 @@ int main(int argc, char* argv[]){
 	if(argc < 3){
 		outfile[0] = 'b';	// sst_[...] -> bst_[...]
 	} else {
-		if(strlen(argv[3]) <= 50)
+		if(strlen(argv[3]) <= 50){
 			strcpy(outfile, argv[3]);
-		else {
+			if(mode == JSON)
+				strcat(outfile, ".json");
+			else
+				strcat(outfile, ".csv");	// Default is csv, we've already enforced that the specified extension is valid.
+		} else {
 			printf("Error: Booster output file path too long.\n");
 			exit(-3);
 		}
 	}
 	file = open(outfile, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-	printf("Output open\n");
+	printf("Output open: %s\n", outfile);
 	
 	memset(buffer, '\0', sizeof(buffer));
-	sprintf(buffer, "clock, x_dist, x_vel, x_accel, y_dist, y_vel, y_accel, z_dist, z_vel, z_accel, temperature, gyro_x, gyro_y, gyro_z\n");
+	sprintf(buffer, "clock, x_dist, x_vel, x_accel, y_dist, y_vel, y_accel, z_dist, z_vel, z_accel, temperature, gyro_yaw, gyro_pitch, gyro_roll, rot_yaw, rot_pitch, rot_roll, latitude, longitude\n");
 	write(file, buffer, strlen(buffer));
 	
-	for(int i = 0; i < (int) measurement_duration / measurement_delta; i++){
-//		printf("PRINTING %f\n", data[i].clk);
+	for(int i = 0; i <= (int) measurement_duration / measurement_delta; i++){
+	//	printf("PRINTING %f\n", data[i].clk);
 		// Add noise
 		data[i].temperature += 0.64 * get_rand();
 		data[i].x.dista += data[i].x.dista * get_rand() / 10000;
@@ -182,11 +193,13 @@ int main(int argc, char* argv[]){
 	
 		memset(buffer, '\0', sizeof(buffer));
 		if(mode == CSV) // CSV
-			sprintf(buffer, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0][0], data[i].gyro[0][1], data[i].gyro[0][2], data[i].gyro[1][0], data[i].gyro[1][1], data[i].gyro[1][2], data[i].gyro[2][0], data[i].gyro[2][1], data[i].gyro[2][2], data[i].rot[0], data[i].rot[1], data[i].rot[0]);
+			sprintf(buffer, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0], data[i].gyro[1], data[i].gyro[2], data[i].rot[0], data[i].rot[1], data[i].rot[2], (32.99038889 + data[i].z.dista / 364320), (105.0417222 + data[i].x.dista / 364320));
 		else if(mode == JSON)		// JSON
-			sprintf(buffer, "{clock: %f, x_axis: {dist: %f, vel: %f, accel: %f}, y_axis: {dist: %f, vel: %f, accel: %f}, z_axis: {dist: %f, vel: %f, accel: %f}, temperature: %f, gyro: {x: {i: %f, j: %f, k: %f}, y: {i: %f, j: %f, k: %f}, z: {i: %f, j: %f, k: %f}}, rot: {x: %f, y: %f, z: %f)}\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0][0], data[i].gyro[0][1], data[i].gyro[0][2], data[i].gyro[1][0], data[i].gyro[1][1], data[i].gyro[1][2], data[i].gyro[2][0], data[i].gyro[2][1], data[i].gyro[2][2], data[i].rot[0], data[i].rot[1], data[i].rot[2]);
+			sprintf(buffer, "{clock: %f, x_axis: {dist: %f, vel: %f, accel: %f}, y_axis: {dist: %f, vel: %f, accel: %f}, z_axis: {dist: %f, vel: %f, accel: %f}, temperature: %f, gyro: {yaw: %f, pitch: %f, roll: %f}, rot: {yaw: %f, pitch: %f, roll: %f)}\n", data[i].clk, data[i].x.dista, data[i].x.veloc, data[i].x.accel, data[i].y.dista, data[i].y.veloc, data[i].y.accel, data[i].z.dista, data[i].z.veloc, data[i].z.accel, data[i].temperature, data[i].gyro[0], data[i].gyro[1], data[i].gyro[2], data[i].rot[0], data[i].rot[1], data[i].rot[2]);
 				
 		write(file, buffer, strlen(buffer));
+		free(data[i].gyro);
+		free(data[i].rot);
 	}
 	
 	for(int i = 0; i < 3; i++)

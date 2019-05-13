@@ -6,7 +6,6 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
-#include "update_alignment.h"
 
 #define GRAVITATION -32.17405					// Standard constant of gravition in ft/s^2
 #define BOOSTER_ACCELERATION 32.17405 *   11.2 	// ~11.2G's acceleration
@@ -17,12 +16,13 @@
 
 #define GROUND_TEMP 311	// ~100F, roughly accurate to New Mexico in summer
 
-#define GYRO_X 0	// Rotation about X axis
-#define GYRO_Y 1	// Rotation about Y axis
-#define GYRO_Z 2	// Rotation about Z axis
+#define GYRO_YAW 	0	// Rotation about Y axis
+#define GYRO_PITCH 	1	// Rotation about Z axis
+#define GYRO_ROLL 	2	// Rotation about X axis
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
+#define PI 3.14159265
 /********
 Axes:
 	 Upwards
@@ -47,7 +47,7 @@ struct axis{
 struct dataset{
 	double clk;
 	double temperature;
-	double** gyro;
+	double* gyro;
 	double* rot;
 	struct axis x;
 	struct axis y;
