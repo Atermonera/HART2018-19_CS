@@ -27,7 +27,7 @@ struct stage{
 	double thrust;
 	double mass;
 	int gps_set;		// If we've seen a gps packet for this data packet.
-	double last_time;	// timestamp of last message
+	int last_time;		// timestamp of last message
 };
 
 void init_stage(struct stage* S){
@@ -56,7 +56,7 @@ void init_stage(struct stage* S){
 	S->rot[2] = 0;
 	S->thrust = -1;
 	S->mass = -1;
-	S-?gps_set = 0;
+	S->gps_set = 0;
 	S->last_time = -1;
 	
 	return;
@@ -126,8 +126,8 @@ int main(){
 		}
 		// Compare timestamp
 		if(curr->last_time > timestamp.time){
-			sprintf(buffer, "ERROR: Timestamp out of order. Received %d, expected no lower than %d\n", timestamp.time, last_time);
-			write(*currlog, buffer, strlen(buffer));
+			sprintf(buffer, "ERROR: Timestamp out of order. Received %d, expected no lower than %d\n", timestamp.time, curr->last_time);
+			write(*curr_log, buffer, strlen(buffer));
 			continue;	// No use trying to interpolate with a previous state as current
 		} else
 			curr->last_time = timestamp.time;
@@ -168,7 +168,7 @@ int main(){
 			sprintf(buffer, "PKT: x_acc %f, y_acc %f, z_acc %f, y_alt %f, tmptr %f, x_rot %f, y_rot %f, z_rot %f\n", curr->x.accel, curr->y.accel, curr->z.accel, curr->y.dista, curr->temperature, curr->rot[0], curr->rot[1], curr->rot[2]);
 			write(*curr_log, buffer, strlen(buffer));
 			memset(buffer, '\0', strlen(buffer));
-			sprintf(buffer, "%f, 0, 0, %f, %f, %f, %f, 0, 0, %f, %f, 0,0,0, 0,0,0, 0,0,0, %f, %f, %f, %f, %f\n", curr->last_time, curr->x.accel, curr->y.dista, curr->gps.speed, curr->y.accel, curr->z.accel, curr->temperature, curr->rot[0], curr->rot[1], curr->rot[2], curr->gps.latitude, curr->gps.longitude);
+			sprintf(buffer, "%d, 0, 0, %f, %f, %f, %f, 0, 0, %f, %f, 0,0,0, 0,0,0, 0,0,0, %f, %f, %f, %f, %f\n", curr->last_time, curr->x.accel, curr->y.dista, curr->gps.speed, curr->y.accel, curr->z.accel, curr->temperature, curr->rot[0], curr->rot[1], curr->rot[2], curr->gps.latitude, curr->gps.longitude);
 		
 		} else if (stat == 1){	// GPS data
 			curr->gps_set = 1;
