@@ -109,6 +109,10 @@
 				apogeeAltitude = b_Alt;
 				readouts["apogee"].redraw(apogeeAltitude);
 			}
+      //if (s_Alt > 150000){
+      //  var audio = new Audio('sounds/flamingo.mp3');
+      //  audio.play();
+      //}
 			if (s_Alt >= apogeeAltitude) {
 			  apogeeAltitude = s_Alt;
 			  readouts["apogee"].redraw(apogeeAltitude);
@@ -141,7 +145,7 @@
 		// event emitted when receiving message 
 		ws.onmessage = function (ev) {
 			var line = ev.data.split(',');
-			//console.log(line[sus_s_latIndex]);
+			//console.log(line);
 			//console.log("time: " + parseFloat(line[clockIndex]).toFixed(2));
 			
 			// update gauges
@@ -151,7 +155,7 @@
 			updateReadouts(line);
         
 			// update position
-			if (line[index_index] % 5 == 0) {
+			if (line[index_index] % 20 == 0) {
 				posAnimate(line);
 			}
 		}

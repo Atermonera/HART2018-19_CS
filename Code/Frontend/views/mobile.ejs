@@ -140,7 +140,7 @@
 			// event emitted when receiving message 
 			ws.onmessage = function (ev) {
 				var line = ev.data.split(',');
-				//console.log(line[sus_s_latIndex]);
+				//console.log(line);
 				//console.log("time: " + parseFloat(line[clockIndex]).toFixed(2));
 				
 				// update gauges
@@ -150,7 +150,7 @@
 				updateReadouts(line);
 			
 				// update position
-				if (line[index_index] % 5 == 0) {
+				if (line[index_index] % 20 == 0) {
 					posAnimate(line);
 				}
 			}

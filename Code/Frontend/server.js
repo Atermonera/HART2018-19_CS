@@ -1,7 +1,7 @@
 // import dependencies
 const express = require('express');
 const app = express();
-const ws = require('./websocket')
+const ws = require('./websocket');
 
 // constants
 const port = 1500;
