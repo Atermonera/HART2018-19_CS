@@ -9,22 +9,12 @@
 #include <errno.h>
 
 // Variable array indexing
-#define AXIS_X_DIST 	0
-#define AXIS_X_VEL 		1
-#define AXIS_X_ACCEL	2
-#define AXIS_Y_DIST 	3
-#define AXIS_Y_VEL 		4
-#define AXIS_Y_ACCEL 	5
-#define AXIS_Z_DIST 	6
-#define AXIS_Z_VEL 		7
-#define AXIS_Z_ACCEL	8
+#define KIN_DIST 	0
+#define KIN_VEL 	1
+#define KIN_ACCEL	2
 
-#define ROTATION_YAW	0
-#define AXIS_YAW		1
-#define ROTATION_PITCH	2
-#define AXIS_PITCH		3
-#define ROTATION_ROLL	4
-#define AXIS_ROLL		5
+#define ROT_VAL		0
+#define ROT_DEL		1
 
 #define TEMPERATURE 0
 
@@ -391,6 +381,7 @@ void kalman_filter_step(struct state* curr, double timestep, int verbose, int de
 	if(debug){
 		printf("\ngain * (Z - (CONST_C * X_hat)):\n");
 		matrix_print(temp_var, curr->size, 1);
+
 	}	
 	
 	// x_hat <= x_hat + gain*(z-C*x_hat)
@@ -486,14 +477,22 @@ void kalman_filter_step(struct state* curr, double timestep, int verbose, int de
 
 
 int main(){
-	struct state* kinematics = malloc(sizeof(struct state));
-	struct state* rotation = malloc(sizeof(struct state));
+	struct state* kin_x = malloc(sizeof(struct state));
+	struct state* kin_y = malloc(sizeof(struct state));
+	struct state* kin_z = malloc(sizeof(struct state));
+	struct state* rot_pitch = malloc(sizeof(struct state));
+	struct state* rot_yaw   = malloc(sizeof(struct state));
+	struct state* rot_roll  = malloc(sizeof(struct state));
 	struct state* temperature = malloc(sizeof(struct state));
 	double* observation = malloc(sizeof(double) * 14);	// Holds variables read from file that we don't directly measure (and therefore toss)
 	double clk;
 	double timestep = 0.01; // 0.01s between observations
-	init_state(kinematics, 9);
-	init_state(rotation, 6);
+	init_state(kin_x, 3);
+	init_state(kin_y, 3);
+	init_state(kin_z, 3);
+	init_state(rot_pitch, 2);
+	init_state(rot_yaw,   2);
+	init_state(rot_roll,  2);
 	init_state(temperature, 1);
 	
 	
@@ -501,36 +500,60 @@ int main(){
 	
 	// kinematics
 	// constant values
-	for(int i = 0; i < kinematics->size; i++){
-		kinematics->const_a[i][i] = 1;
-		kinematics->const_c[i][i] = 1;
-		kinematics->const_q[i][i] = 0.01;
-		kinematics->const_r[i][i] = 0.4;
-		kinematics->p_k[i][i] = 1.0;
-		kinematics->gain[i][i] = 1.0;
+	for(int i = 0; i < kin_x->size; i++){
+		kin_x->const_a[i][i] = 1;
+		kin_x->const_c[i][i] = 1;
+		kin_x->const_q[i][i] = 0.01;
+		kin_x->const_r[i][i] = 0.4;
+		kin_x->p_k[i][i] = 1.0;
+		kin_x->gain[i][i] = 1.0;
+		kin_y->const_a[i][i] = 1;
+		kin_y->const_c[i][i] = 1;
+		kin_y->const_q[i][i] = 0.01;
+		kin_y->const_r[i][i] = 0.4;
+		kin_y->p_k[i][i] = 1.0;
+		kin_y->gain[i][i] = 1.0;
+		kin_z->const_a[i][i] = 1;
+		kin_z->const_c[i][i] = 1;
+		kin_z->const_q[i][i] = 0.01;
+		kin_z->const_r[i][i] = 0.4;
+		kin_z->p_k[i][i] = 1.0;
+		kin_z->gain[i][i] = 1.0;
 	}		
 	// X axis
-	kinematics->const_a[AXIS_X_VEL][AXIS_X_DIST] 		= timestep;
-	kinematics->const_a[AXIS_X_ACCEL][AXIS_X_VEL] 		= timestep;
+	kin_x->const_a[KIN_VEL][KIN_DIST] 		= timestep;
+	kin_x->const_a[KIN_ACCEL][KIN_VEL] 		= timestep;
 	// Y axis
-	kinematics->const_a[AXIS_Y_VEL][AXIS_Y_DIST] 		= timestep;
-	kinematics->const_a[AXIS_Y_ACCEL][AXIS_Y_VEL] 		= timestep;
+	kin_y->const_a[KIN_VEL][KIN_DIST] 		= timestep;
+	kin_y->const_a[KIN_ACCEL][KIN_VEL] 		= timestep;
 	// Z axis
-	kinematics->const_a[AXIS_Z_VEL][AXIS_Z_DIST] 		= timestep;
-	kinematics->const_a[AXIS_Z_ACCEL][AXIS_Z_VEL] 		= timestep;
+	kin_z->const_a[KIN_VEL][KIN_DIST] 		= timestep;
+	kin_z->const_a[KIN_ACCEL][KIN_VEL] 		= timestep;
 	
 	// rotation
-	for(int i = 0; i < rotation->size; i++){
-		rotation->const_a[i][i] = 1;
-		rotation->const_c[i][i] = 1;
-		rotation->const_q[i][i] = 0.01;
-		rotation->const_r[i][i] = 0.1;
-		rotation->p_k[i][i] = 1.0;
-		rotation->gain[i][i] = 1.0;
+	for(int i = 0; i < rot_yaw->size; i++){
+		rot_pitch->const_a[i][i] = 1;
+		rot_pitch->const_c[i][i] = 1;
+		rot_pitch->const_q[i][i] = 0.01;
+		rot_pitch->const_r[i][i] = 0.1;
+		rot_pitch->p_k[i][i] = 1.0;
+		rot_pitch->gain[i][i] = 1.0;
+		rot_yaw->const_a[i][i] = 1;
+		rot_yaw->const_c[i][i] = 1;
+		rot_yaw->const_q[i][i] = 0.01;
+		rot_yaw->const_r[i][i] = 0.1;
+		rot_yaw->p_k[i][i] = 1.0;
+		rot_yaw->gain[i][i] = 1.0;
+		rot_roll->const_a[i][i] = 1;
+		rot_roll->const_c[i][i] = 1;
+		rot_roll->const_q[i][i] = 0.01;
+		rot_roll->const_r[i][i] = 0.1;
+		rot_roll->p_k[i][i] = 1.0;
+		rot_roll->gain[i][i] = 1.0;
 	}	
-	rotation->const_a[ROTATION_YAW][AXIS_YAW] 			= timestep;	
-	rotation->const_a[ROTATION_PITCH][AXIS_PITCH]		= timestep;
-	rotation->const_a[ROTATION_ROLL][AXIS_ROLL] 			= timestep;
+	rot_pitch->const_a[ROT_DEL][ROT_VAL] 			= timestep;	
+	rot_yaw->const_a[ROT_DEL][ROT_VAL] 			= timestep;	
+	rot_roll->const_a[ROT_DEL][ROT_VAL] 			= timestep;	
 	
 	// temperature
 	temperature->const_a[TEMPERATURE][TEMPERATURE] = 1;
@@ -561,18 +584,22 @@ int main(){
 	// readLine returns 0 on EOF
 	while(readLine(line, fp)){
 	//	printf("Iteration %d\t read %d: %s\n", count, strlen(line), line);
-		sscanf(line, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", &(clk), &(observation[0]), &(observation[1]), &(kinematics->observations[AXIS_X_ACCEL][0]), &(kinematics->observations[AXIS_Y_DIST][0]), &(observation[2]), &(kinematics->observations[AXIS_Y_ACCEL][0]), &(observation[3]), &(observation[4]), &(kinematics->observations[AXIS_Z_ACCEL][0]), &(temperature->observations[TEMPERATURE][0]), &(observation[5]), &(observation[6]), &(observation[7]), &(observation[8]), &(observation[9]), &(observation[10]), &(observation[11]), &(observation[12]), &(observation[13]), &(rotation->observations[ROTATION_ROLL][0]), &(rotation->observations[ROTATION_YAW][0]), &(rotation->observations[ROTATION_PITCH][0]));
+		sscanf(line, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", &(clk), &(observation[0]), &(observation[1]), &(kin_x->observations[KIN_ACCEL][0]), &(kin_y->observations[KIN_DIST][0]), &(observation[2]), &(kin_y->observations[KIN_ACCEL][0]), &(observation[3]), &(observation[4]), &(kin_z->observations[KIN_ACCEL][0]), &(temperature->observations[TEMPERATURE][0]), &(observation[5]), &(observation[6]), &(observation[7]), &(observation[8]), &(observation[9]), &(observation[10]), &(observation[11]), &(observation[12]), &(observation[13]), &(rot_roll->observations[ROT_DEL][0]), &(rot_yaw->observations[ROT_DEL][0]), &(rot_pitch->observations[ROT_DEL][0]));
 		memset(line, '\0', sizeof(line));
 		
 	//	printf("Line parsed\n");
 				
 		printf("Analyzing step %d\n", count++);
 		// Kinematics step
-		kalman_filter_step(kinematics, 0.01, 0, 0, 0);
+		kalman_filter_step(kin_x, 0.01, 0, 0, 0);
+		kalman_filter_step(kin_y, 0.01, 0, 0, 0);
+		kalman_filter_step(kin_z, 0.01, 0, 0, 0);
 	//	kalman_filter_step(kinematics, 0.01, count > -1 ? VERBOSE : 0, count > -1 ? DEBUG : 0, count > 2 ? CRASH : 0);
 		
 		// Rotation step
-		kalman_filter_step(rotation, 0.01, 0, 0, 0);
+		kalman_filter_step(rot_yaw, 0.01, 0, 0, 0);
+		kalman_filter_step(rot_pitch, 0.01, 0, 0, 0);
+		kalman_filter_step(rot_roll, 0.01, 0, 0, 0);
 	//	kalman_filter_step(rotation, 0.01, count > -1 ? VERBOSE : 0, count > -1 ? DEBUG : 0, count > 2 ? CRASH : 0);
 		
 		// Temperature step
@@ -591,12 +618,16 @@ int main(){
 		// Write new data to file
 		char buffer[1024];
 		memset(buffer, '\0', sizeof(buffer));
-		sprintf(buffer, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", clk, kinematics->variables[AXIS_X_DIST][0], kinematics->variables[AXIS_X_VEL][0], kinematics->variables[AXIS_X_ACCEL][0], kinematics->variables[AXIS_Y_DIST][0], kinematics->variables[AXIS_Y_VEL][0], kinematics->variables[AXIS_Y_ACCEL][0], kinematics->variables[AXIS_Z_DIST][0], kinematics->variables[AXIS_Z_VEL][0], kinematics->variables[AXIS_Z_ACCEL][0], temperature->variables[TEMPERATURE][0], rotation->variables[AXIS_YAW][0], rotation->variables[ROTATION_YAW][0], rotation->variables[AXIS_PITCH][0], rotation->variables[ROTATION_PITCH][0], rotation->variables[AXIS_ROLL][0], rotation->variables[ROTATION_ROLL][0]);
+		sprintf(buffer, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", clk, kin_x->variables[KIN_DIST][0], kin_x->variables[KIN_VEL][0], kin_x->variables[KIN_ACCEL][0], kin_y->variables[KIN_DIST][0], kin_y->variables[KIN_VEL][0], kin_y->variables[KIN_ACCEL][0], kin_z->variables[KIN_DIST][0], kin_z->variables[KIN_VEL][0], kin_z->variables[KIN_ACCEL][0], temperature->variables[TEMPERATURE][0], rot_roll->variables[ROT_VAL][0], rot_yaw->variables[ROT_VAL][0], rot_pitch->variables[ROT_VAL][0], rot_roll->variables[ROT_DEL][0], rot_yaw->variables[ROT_DEL][0], rot_pitch->variables[ROT_DEL][0]);
 		write(output, buffer, strlen(buffer));
 	}
 	
-	free_state(kinematics);
-	free_state(rotation);
+	free_state(kin_x);
+	free_state(kin_y);
+	free_state(kin_z);
+	free_state(rot_yaw);
+	free_state(rot_pitch);
+	free_state(rot_roll);
 	free_state(temperature);
 	// Close files
 	close(fp);
